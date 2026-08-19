@@ -1,0 +1,6 @@
+{
+  "name": "D.U.E.R.M.E.™",
+  "description": "Sistema Inteligente para el Descanso Mental y la Recuperación del Sueño - Tu Poder Mental™",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

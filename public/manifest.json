@@ -1,0 +1,18 @@
+{
+  "name": "D.U.E.R.M.E.™ - Descanso Mental y Recuperación",
+  "short_name": "DUERME™",
+  "description": "Sistema Inteligente para el Descanso Mental y la Recuperación del Sueño - Tu Poder Mental™",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030712",
+  "theme_color": "#1e1b4b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
