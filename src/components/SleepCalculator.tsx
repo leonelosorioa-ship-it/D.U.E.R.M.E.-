@@ -1,153 +1,257 @@
 import { useState } from 'react';
-import { Clock, Moon, Sun, Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Clock, Moon, Sun, Sparkles, Brain, CheckCircle2, ArrowRight } from 'lucide-react';
+import { audioCues } from '../utils/audioCues';
 
 export function SleepCalculator() {
-  const [calcMode, setCalcMode] = useState<'wake' | 'bed'>('wake');
-  const [targetTime, setTargetTime] = useState('06:30');
+  const [calcMode, setCalcMode] = useState<'wake' | 'now'>('wake');
+  const [wakeHour, setWakeHour] = useState('07');
+  const [wakeMinute, setWakeMinute] = useState('00');
+  const [wakePeriod, setWakePeriod] = useState<'AM' | 'PM'>('AM');
 
-  const calculateSleepTimes = () => {
-    const [hours, minutes] = targetTime.split(':').map(Number);
+  const LATENCY_MINUTES = 14; // Average biological time to fall asleep
+  const CYCLE_MINUTES = 90; // Ultradian sleep cycle duration
+
+  const calculateBedTimes = () => {
+    let hour = parseInt(wakeHour, 10);
+    if (wakePeriod === 'PM' && hour !== 12) hour += 12;
+    if (wakePeriod === 'AM' && hour === 12) hour = 0;
+
     const targetDate = new Date();
-    targetDate.setHours(hours, minutes, 0, 0);
+    targetDate.setHours(hour, parseInt(wakeMinute, 10), 0, 0);
 
-    const cycles = [6, 5, 4, 3]; // 9h, 7.5h, 6h, 4.5h
+    const cycles = [6, 5, 4, 3]; // 6 cycles = 9h, 5 = 7.5h, 4 = 6h, 3 = 4.5h
 
-    if (calcMode === 'wake') {
-      // User wants to wake up at targetTime -> calculate bed times (- (cycles * 90 min + 15 min latency))
-      return cycles.map(c => {
-        const totalMinutes = c * 90 + 15; // 15 min to fall asleep
-        const bedDate = new Date(targetDate.getTime() - totalMinutes * 60 * 1000);
-        const hh = bedDate.getHours().toString().padStart(2, '0');
-        const mm = bedDate.getMinutes().toString().padStart(2, '0');
-        return {
-          cycles: c,
-          hours: (c * 1.5).toFixed(1),
-          time: `${hh}:${mm}`,
-          isRecommended: c === 5 || c === 6,
-          label: c === 6 ? 'Óptimo (9h - Reparación profunda)' : c === 5 ? 'Recomendado (7.5h - Equilibrio perfecto)' : c === 4 ? 'Mínimo funcional (6h)' : 'Emergencia (4.5h)',
-        };
-      });
-    } else {
-      // User is going to bed now -> calculate wake times (+ (cycles * 90 min + 15 min latency))
-      const now = new Date();
-      return cycles.map(c => {
-        const totalMinutes = c * 90 + 15;
-        const wakeDate = new Date(now.getTime() + totalMinutes * 60 * 1000);
-        const hh = wakeDate.getHours().toString().padStart(2, '0');
-        const mm = wakeDate.getMinutes().toString().padStart(2, '0');
-        return {
-          cycles: c,
-          hours: (c * 1.5).toFixed(1),
-          time: `${hh}:${mm}`,
-          isRecommended: c === 5 || c === 6,
-          label: c === 6 ? 'Óptimo (9h - 6 Ciclos NREM/REM)' : c === 5 ? 'Recomendado (7.5h - 5 Ciclos)' : c === 4 ? '4 Ciclos (6h)' : '3 Ciclos (4.5h)',
-        };
-      });
-    }
+    return cycles.map((c) => {
+      const totalMinutes = c * CYCLE_MINUTES + LATENCY_MINUTES;
+      const bedDate = new Date(targetDate.getTime() - totalMinutes * 60 * 1000);
+
+      let h = bedDate.getHours();
+      const m = bedDate.getMinutes().toString().padStart(2, '0');
+      const period = h >= 12 ? 'PM' : 'AM';
+      h = h % 12;
+      if (h === 0) h = 12;
+
+      return {
+        cyclesCount: c,
+        totalHours: (c * 1.5).toFixed(1),
+        timeString: `${h}:${m} ${period}`,
+        isOptimal: c === 5 || c === 6,
+        description: c === 6 ? 'Excelente (9 horas de regeneración plena)' : c === 5 ? 'Óptimo (7.5 horas de equilibrio perfecto)' : c === 4 ? 'Aceptable (6 horas mínimas)' : 'Emergencia (4.5 horas)',
+      };
+    });
   };
 
-  const results = calculateSleepTimes();
+  const calculateWakeTimesFromNow = () => {
+    const now = new Date();
+    const cycles = [3, 4, 5, 6];
+
+    return cycles.map((c) => {
+      const totalMinutes = c * CYCLE_MINUTES + LATENCY_MINUTES;
+      const wakeDate = new Date(now.getTime() + totalMinutes * 60 * 1000);
+
+      let h = wakeDate.getHours();
+      const m = wakeDate.getMinutes().toString().padStart(2, '0');
+      const period = h >= 12 ? 'PM' : 'AM';
+      h = h % 12;
+      if (h === 0) h = 12;
+
+      return {
+        cyclesCount: c,
+        totalHours: (c * 1.5).toFixed(1),
+        timeString: `${h}:${m} ${period}`,
+        isOptimal: c === 5 || c === 6,
+        description: c === 6 ? '6 Ciclos (9h - Descanso Total)' : c === 5 ? '5 Ciclos (7.5h - Más Recomendado)' : c === 4 ? '4 Ciclos (6h)' : '3 Ciclos (4.5h)',
+      };
+    });
+  };
+
+  const bedTimes = calculateBedTimes();
+  const wakeTimes = calculateWakeTimesFromNow();
 
   return (
-    <div className="space-y-8 max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto space-y-8">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-slate-100 font-display flex items-center justify-center gap-2">
-          <Clock className="w-6 h-6 text-cyan-400" />
-          <span>Calculadora de Ciclos Ultradianos (90 min)</span>
-        </h2>
-        <p className="text-xs text-slate-400 max-w-lg mx-auto">
-          Despertar en medio de la fase NREM3 provoca inercia de sueño y fatiga matutina. Sincroniza tu alarma con el final de un ciclo biológico.
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-950/80 border border-indigo-700/50 text-indigo-300 text-xs font-semibold">
+          <Clock className="w-3.5 h-3.5 text-cyan-400" />
+          <span>Fisiología Ultradiana del Sueño</span>
+        </div>
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-100 font-display">
+          Calculadora de Ciclos de 90 Minutos
+        </h1>
+        <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto">
+          Despertarte en medio de un ciclo NREM3 profundo te dejará con inercia del sueño y niebla mental. Despiértate al finalizar un ciclo completo de 90 minutos para levantarte ligera y llena de energía.
         </p>
       </div>
 
-      {/* Mode Switcher */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <button
-          onClick={() => setCalcMode('wake')}
-          className={`flex-1 p-4 rounded-2xl border transition-all flex items-center gap-3 ${
-            calcMode === 'wake'
-              ? 'bg-indigo-900/40 border-cyan-400 text-slate-100 shadow-lg shadow-indigo-950 ring-2 ring-cyan-500/20'
-              : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:bg-slate-900 hover:text-slate-200'
-          }`}
-        >
-          <Sun className="w-5 h-5 text-amber-400 shrink-0" />
-          <div className="text-left">
-            <span className="text-xs font-bold block">Quiero levantarme a cierta hora</span>
-            <span className="text-[11px] text-slate-400">Calcula a qué hora meterte en cama</span>
-          </div>
-        </button>
-
-        <button
-          onClick={() => setCalcMode('bed')}
-          className={`flex-1 p-4 rounded-2xl border transition-all flex items-center gap-3 ${
-            calcMode === 'bed'
-              ? 'bg-indigo-900/40 border-cyan-400 text-slate-100 shadow-lg shadow-indigo-950 ring-2 ring-cyan-500/20'
-              : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:bg-slate-900 hover:text-slate-200'
-          }`}
-        >
-          <Moon className="w-5 h-5 text-cyan-400 shrink-0" />
-          <div className="text-left">
-            <span className="text-xs font-bold block">Me voy a dormir ahora</span>
-            <span className="text-[11px] text-slate-400">Calcula tus horas óptimas de alarma</span>
-          </div>
-        </button>
-      </div>
-
-      {/* Time Picker if 'wake' mode */}
-      {calcMode === 'wake' && (
-        <div className="bg-slate-900/80 border border-indigo-950 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-200 block">
-              ¿A qué hora deseas levantarte mañana?
-            </label>
-            <p className="text-[11px] text-slate-400">Incluye 15 minutos automáticos de inducción al sueño.</p>
-          </div>
-
-          <input
-            type="time"
-            value={targetTime}
-            onChange={(e) => setTargetTime(e.target.value)}
-            className="px-5 py-3 rounded-2xl bg-slate-950 border border-indigo-900 text-xl font-bold font-mono text-cyan-300 focus:border-cyan-400 outline-none shadow-inner"
-          />
+      {/* Main Calculator Box */}
+      <div className="bg-slate-900/90 border border-indigo-950 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl backdrop-blur-md">
+        {/* Toggle Mode */}
+        <div className="flex bg-slate-950 rounded-2xl p-1.5 border border-indigo-950 max-w-md mx-auto">
+          <button
+            onClick={() => setCalcMode('wake')}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+              calcMode === 'wake'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Sun className="w-4 h-4 text-amber-400" />
+            <span>Quiero Despertar a las...</span>
+          </button>
+          <button
+            onClick={() => setCalcMode('now')}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+              calcMode === 'now'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Moon className="w-4 h-4 text-cyan-400" />
+            <span>Me Acuesto Ahora Mismo</span>
+          </button>
         </div>
-      )}
 
-      {/* Results Grid */}
-      <div className="space-y-3">
-        <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-          {calcMode === 'wake' ? 'Horarios Sugeridos para Acostarte:' : 'Horas Sugeridas para tu Alarma:'}
-        </h3>
+        {/* Form when calcMode === 'wake' */}
+        {calcMode === 'wake' ? (
+          <div className="space-y-6">
+            <div className="flex flex-col items-center justify-center gap-3">
+              <span className="text-xs font-bold text-slate-300">
+                Selecciona tu hora deseada de despertar:
+              </span>
 
-        <div className="grid sm:grid-cols-2 gap-4">
-          {results.map((r, i) => (
-            <div
-              key={i}
-              className={`p-5 rounded-2xl border transition-all relative overflow-hidden ${
-                r.isRecommended
-                  ? 'bg-gradient-to-br from-indigo-950/80 via-slate-900 to-slate-950 border-cyan-400/80 shadow-xl shadow-cyan-950/20'
-                  : 'bg-slate-950/50 border-slate-800/80 text-slate-300'
-              }`}
-            >
-              {r.isRecommended && (
-                <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/50 text-[10px] font-bold text-cyan-300 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" /> Recomendado
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                <select
+                  value={wakeHour}
+                  onChange={(e) => setWakeHour(e.target.value)}
+                  className="px-4 py-3 rounded-2xl bg-slate-950 border border-indigo-950 text-xl font-bold text-cyan-400 outline-none"
+                >
+                  {Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0')).map(
+                    (h) => (
+                      <option key={h} value={h}>
+                        {h}
+                      </option>
+                    )
+                  )}
+                </select>
 
-              <div className="space-y-1">
-                <span className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-100 font-display">
-                  {r.time}
-                </span>
-                <p className="text-xs font-semibold text-cyan-300">
-                  {r.cycles} ciclos • {r.hours} horas de sueño
-                </p>
-                <p className="text-[11px] text-slate-400 leading-relaxed pt-1">
-                  {r.label}
-                </p>
+                <span className="text-xl font-bold text-slate-400">:</span>
+
+                <select
+                  value={wakeMinute}
+                  onChange={(e) => setWakeMinute(e.target.value)}
+                  className="px-4 py-3 rounded-2xl bg-slate-950 border border-indigo-950 text-xl font-bold text-cyan-400 outline-none"
+                >
+                  {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map(
+                    (m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    )
+                  )}
+                </select>
+
+                <select
+                  value={wakePeriod}
+                  onChange={(e) => setWakePeriod(e.target.value as 'AM' | 'PM')}
+                  className="px-4 py-3 rounded-2xl bg-slate-950 border border-indigo-950 text-base font-bold text-indigo-300 outline-none"
+                >
+                  <option value="AM">AM</option>
+                  <option value="PM">PM</option>
+                </select>
               </div>
             </div>
-          ))}
+
+            {/* Results Grid */}
+            <div className="space-y-3">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block text-center">
+                Horas recomendadas para meterte en la cama (incluye 14 min de latencia):
+              </span>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                {bedTimes.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className={`p-4 rounded-2xl border flex items-center justify-between gap-3 ${
+                      item.isOptimal
+                        ? 'bg-indigo-950/60 border-cyan-400/80 ring-1 ring-cyan-500/30 text-slate-100 shadow-lg shadow-indigo-950'
+                        : 'bg-slate-950/60 border-indigo-950/80 text-slate-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl font-extrabold text-cyan-400 font-display">
+                          {item.timeString}
+                        </span>
+                        {item.isOptimal && (
+                          <span className="px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/60 text-[10px] font-bold text-cyan-300">
+                            Recomendado
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-400 mt-0.5">{item.description}</p>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span className="text-xs font-bold text-indigo-300 block">
+                        {item.cyclesCount} ciclos
+                      </span>
+                      <span className="text-[10px] text-slate-500">({item.totalHours} h)</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* calcMode === 'now' */
+          <div className="space-y-4">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block text-center">
+              Si te acuestas en este instante, programa tu alarma a una de estas horas:
+            </span>
+
+            <div className="grid sm:grid-cols-2 gap-3">
+              {wakeTimes.map((item, idx) => (
+                <div
+                  key={idx}
+                  className={`p-4 rounded-2xl border flex items-center justify-between gap-3 ${
+                    item.isOptimal
+                      ? 'bg-indigo-950/60 border-cyan-400/80 ring-1 ring-cyan-500/30 text-slate-100 shadow-lg shadow-indigo-950'
+                      : 'bg-slate-950/60 border-indigo-950/80 text-slate-300'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl font-extrabold text-cyan-400 font-display">
+                        {item.timeString}
+                      </span>
+                      {item.isOptimal && (
+                        <span className="px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/60 text-[10px] font-bold text-cyan-300">
+                          Óptimo
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-400 mt-0.5">{item.description}</p>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span className="text-xs font-bold text-indigo-300 block">
+                      {item.cyclesCount} ciclos
+                    </span>
+                    <span className="text-[10px] text-slate-500">({item.totalHours} h)</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Biological Explanation Note */}
+        <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/40 flex items-start gap-3 text-xs text-slate-300 leading-relaxed">
+          <Brain className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
+          <div>
+            <strong>Regla de Oro de Clara Luz:</strong> Dormir 7 horas y media (5 ciclos) te hará despertar mucho más renovada que dormir 8 horas exactas, porque a las 8 horas te encontrarías en pleno valle de sueño profundo. Respeta los múltiplos de 90 minutos.
+          </div>
         </div>
       </div>
     </div>

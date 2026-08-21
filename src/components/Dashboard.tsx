@@ -1,23 +1,14 @@
 import { useState } from 'react';
-import { ProgramProgress, DashboardTab } from '../types';
-import { SevenDaysRoadmap } from './SevenDaysRoadmap';
+import { DashboardTab, ProgramProgress, DayEvaluation, LeadInfo } from '../types';
+import { SevenDaysRoadmap } from './7DaysRoadmap';
 import { SoundTherapy } from './SoundTherapy';
-import { BreathingGuide } from './BreathingGuide';
-import { SleepCalculator } from './SleepCalculator';
+import { PeaceGarden } from './PeaceGarden';
 import { ClaraLuzCoach } from './ClaraLuzCoach';
-import { SleepJournal } from './SleepJournal';
-import {
-  CalendarDays,
-  Waves,
-  Wind,
-  Clock,
-  Bot,
-  BookOpen,
-  Sparkles,
-  Moon,
-  ChevronRight,
-  ShieldCheck,
-} from 'lucide-react';
+import { SleepCalculator } from './SleepCalculator';
+import { PremiumDashboard } from './PremiumDashboard';
+import { ProfileSettings } from './ProfileSettings';
+import { BottomNav } from './BottomNav';
+import { AdminPanel } from './AdminPanel';
 
 interface DashboardProps {
   progress: ProgramProgress;
@@ -28,121 +19,118 @@ interface DashboardProps {
     remainingSeconds: number;
     unlockDate?: Date;
   };
-  onCompleteDay: (dayNumber: number, reflection: string, sleepQuality: number, energyMorning: number) => Promise<any>;
-  onAddSleepLog: (log: any) => void;
-  defaultTab?: DashboardTab;
+  onCompleteDay: (
+    dayNumber: number,
+    reflection: string,
+    sleepQuality: number,
+    energyMorning: number,
+    dailyAnswers?: { questionId: number; selectedOptionIndex: number; score: number }[]
+  ) => Promise<DayEvaluation | null>;
+  onUpdateLead: (lead: LeadInfo) => void;
+  onResetProgress: () => void;
+  initialTab?: DashboardTab;
 }
 
 export function Dashboard({
   progress,
   getDayStatus,
   onCompleteDay,
-  onAddSleepLog,
-  defaultTab = 'roadmap',
+  onUpdateLead,
+  onResetProgress,
+  initialTab = 'roadmap',
 }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<DashboardTab>(defaultTab);
+  const [activeTab, setActiveTab] = useState<DashboardTab>(initialTab);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [selectedSoundPresetId, setSelectedSoundPresetId] = useState<string | undefined>(undefined);
 
-  const tabs: { id: DashboardTab; label: string; icon: any; badge?: string }[] = [
-    { id: 'roadmap', label: 'Hoja de Ruta 7D', icon: CalendarDays, badge: `${progress.completedDays.length}/7` },
-    { id: 'sounds', label: 'Terapia Sonora', icon: Waves },
-    { id: 'breath', label: 'Respiración 4-7-8', icon: Wind },
-    { id: 'calculator', label: 'Ciclos de 90m', icon: Clock },
-    { id: 'clara_ai', label: 'Mentora Clara Luz', icon: Bot, badge: 'IA' },
-    { id: 'journal', label: 'Diario Somático', icon: BookOpen },
-  ];
+  const completedDaysCount = progress.completedDays.length;
+  const isDay7Completed = progress.completedDays.includes(7);
+
+  const handleTriggerSoundFromRoadmap = (presetId: string) => {
+    setSelectedSoundPresetId(presetId);
+    setActiveTab('sounds');
+  };
 
   return (
-    <div className="space-y-6 pb-20 max-w-5xl mx-auto px-3 sm:px-4">
-      {/* Top Welcome Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/60 border border-indigo-950/80 p-4 rounded-3xl backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-indigo-950 border border-indigo-800/60 flex items-center justify-center text-cyan-400">
-            <Moon className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-base sm:text-lg font-bold text-slate-100 font-display">
-              Bienvenida, {progress.lead?.name || 'Guerrera del Descanso'}
-            </h1>
-            <p className="text-xs text-slate-400">
-              Foco Somático: <span className="text-cyan-300 font-medium">{progress.diagnosis?.personalizedRoadmapFocus || 'Regulación Circadiana'}</span>
-            </p>
-          </div>
-        </div>
+    <div className="pb-24 pt-4 px-4 max-w-6xl mx-auto space-y-6">
+      {/* Tab Content Rendering */}
+      {activeTab === 'roadmap' && (
+        <SevenDaysRoadmap
+          progress={progress}
+          getDayStatus={getDayStatus}
+          onCompleteDay={onCompleteDay}
+          onTriggerSound={handleTriggerSoundFromRoadmap}
+        />
+      )}
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setActiveTab('sounds')}
-            className="px-3.5 py-1.5 rounded-xl bg-cyan-950 border border-cyan-500/40 hover:bg-cyan-900/50 text-cyan-300 text-xs font-semibold flex items-center gap-1.5 transition-colors"
-          >
-            <Waves className="w-3.5 h-3.5" />
-            <span>Frecuencia Delta</span>
-          </button>
-        </div>
-      </div>
+      {activeTab === 'sounds' && (
+        <SoundTherapy initialPresetId={selectedSoundPresetId} />
+      )}
 
-      {/* Main Tab Navigation Bar */}
-      <div className="flex gap-1.5 p-1.5 rounded-2xl bg-slate-900/90 border border-indigo-950 overflow-x-auto no-scrollbar">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isSelected = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 py-2.5 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                isSelected
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-indigo-950'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-950/40'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
-              {tab.badge && (
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
-                    isSelected
-                      ? 'bg-cyan-400 text-slate-950'
-                      : 'bg-slate-800 text-slate-400'
-                  }`}
-                >
-                  {tab.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      {activeTab === 'garden' && (
+        <PeaceGarden
+          gardenLevel={progress.activeGardenLevel}
+          completedDaysCount={completedDaysCount}
+        />
+      )}
 
-      {/* Tab Content Panels */}
-      <div className="pt-2">
-        {activeTab === 'roadmap' && (
-          <SevenDaysRoadmap
+      {activeTab === 'clara_ai' && (
+        <ClaraLuzCoach
+          userName={progress.leadInfo.nombre}
+          dominantArchetype={progress.scanResult?.archetypeTitle}
+          currentDay={progress.currentDay}
+        />
+      )}
+
+      {activeTab === 'calculator' && (
+        <SleepCalculator />
+      )}
+
+      {activeTab === 'premium' && (
+        <div className="space-y-10">
+          <PremiumDashboard
             progress={progress}
-            getDayStatus={getDayStatus}
-            onCompleteDay={onCompleteDay}
+            onNavigateToRoadmap={() => setActiveTab('roadmap')}
           />
-        )}
+          <div className="border-t border-indigo-950 pt-8">
+            <ProfileSettings
+              progress={progress}
+              onUpdateLead={onUpdateLead}
+              onOpenAdmin={() => setIsAdminOpen(true)}
+              onReset={onResetProgress}
+            />
+          </div>
+        </div>
+      )}
 
-        {activeTab === 'sounds' && (
-          <SoundTherapy />
-        )}
+      {activeTab === 'settings' && (
+        <ProfileSettings
+          progress={progress}
+          onUpdateLead={onUpdateLead}
+          onOpenAdmin={() => setIsAdminOpen(true)}
+          onReset={onResetProgress}
+        />
+      )}
 
-        {activeTab === 'breath' && (
-          <BreathingGuide />
-        )}
+      {/* Persistent Bottom PWA Navigation */}
+      <BottomNav
+        activeTab={activeTab}
+        onSelectTab={(tab) => {
+          setSelectedSoundPresetId(undefined);
+          setActiveTab(tab);
+        }}
+        completedDaysCount={completedDaysCount}
+        isDay7Completed={isDay7Completed}
+      />
 
-        {activeTab === 'calculator' && (
-          <SleepCalculator />
-        )}
-
-        {activeTab === 'clara_ai' && (
-          <ClaraLuzCoach lead={progress.lead} activeDay={progress.activeDay} />
-        )}
-
-        {activeTab === 'journal' && (
-          <SleepJournal logs={progress.sleepLogs} onAddLog={onAddSleepLog} />
-        )}
-      </div>
+      {/* Admin Testing Modal */}
+      <AdminPanel
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
+        progress={progress}
+        onCompleteDay={onCompleteDay}
+        onReset={onResetProgress}
+      />
     </div>
   );
 }

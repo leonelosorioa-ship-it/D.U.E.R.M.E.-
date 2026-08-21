@@ -1,139 +1,132 @@
-import { useState, useEffect, useCallback } from 'react';
-import { ProgramProgress, AppScreen, QuizAnswers, UserLead, DayEvaluation, SleepLogEntry } from '../types';
-import { calculateDiagnosis } from '../questions';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { ProgramProgress, AppPhase, LeadInfo, ScanResultData, DayEvaluation } from '../types';
+import { calculateScanResult, INITIAL_SCAN_QUESTIONS } from '../questions';
 
-const STORAGE_KEY = 'DUERME_PROGRESS_V1';
-const CIRCADIAN_LOCK_HOURS = 24; // 24 hours lock between days
+const STORAGE_KEY = 'DUERME_MUJER_PROGRESS_V2';
+const LOCK_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours strict circadian assimilation
 
-const DEFAULT_PROGRESS: ProgramProgress = {
-  currentStep: 'LANDING',
-  quizAnswers: {},
-  activeDay: 1,
+const INITIAL_PROGRESS: ProgramProgress = {
+  currentDay: 1,
   completedDays: [],
+  activationDate: new Date().toISOString(),
   dayCompletionTimestamps: {},
+  responses: {},
   dayEvaluations: {},
-  sleepLogs: [],
-  soundPreferences: {
-    favoritePreset: 'preset_delta_15',
-    defaultVolume: 0.5,
-    timerMinutes: 30,
+  leadInfo: {
+    nombre: '',
+    email: '',
+    pais: '',
+    phone: '',
   },
+  leadCaptured: false,
+  activeGardenLevel: 1,
+  unlockedBadges: ['iniciada'],
 };
 
 export function useAuthSynchronizer() {
+  const [phase, setPhase] = useState<AppPhase>('LANDING');
   const [progress, setProgress] = useState<ProgramProgress>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
         return {
-          ...DEFAULT_PROGRESS,
+          ...INITIAL_PROGRESS,
           ...parsed,
-          soundPreferences: {
-            ...DEFAULT_PROGRESS.soundPreferences,
-            ...(parsed.soundPreferences || {}),
-          },
         };
       }
     } catch (e) {
-      console.warn('Could not load progress from localStorage', e);
+      console.warn('Error reading from localStorage:', e);
     }
-    return DEFAULT_PROGRESS;
+    return INITIAL_PROGRESS;
   });
 
   const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncError, setLastSyncError] = useState<string | null>(null);
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const initialLoadDone = useRef(false);
 
-  // Sync to localStorage on change
+  // Sync to localStorage
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
     } catch (e) {
-      console.error('Failed to save to localStorage', e);
+      console.error('Error writing to localStorage:', e);
     }
   }, [progress]);
 
-  // Background sync with /api/progress/sync
-  const syncWithServer = useCallback(async (dataToSync: ProgramProgress) => {
+  // Determine initial phase on mount
+  useEffect(() => {
+    if (!initialLoadDone.current) {
+      initialLoadDone.current = true;
+      if (progress.leadCaptured && progress.completedDays.length > 0) {
+        setPhase('DASHBOARD');
+      } else if (progress.leadCaptured && progress.scanResult) {
+        setPhase('DASHBOARD');
+      } else if (progress.scanResult && !progress.leadCaptured) {
+        setPhase('SCAN_RESULTS');
+      }
+    }
+  }, [progress.leadCaptured, progress.scanResult, progress.completedDays.length]);
+
+  // Sync with Server API
+  const syncWithServer = useCallback(async (currentProgress: ProgramProgress) => {
     setIsSyncing(true);
-    setLastSyncError(null);
     try {
       const res = await fetch('/api/progress/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          lead: dataToSync.lead,
-          progress: dataToSync,
-          updatedAt: new Date().toISOString(),
+          lead: currentProgress.leadInfo,
+          progress: currentProgress,
         }),
       });
+
       if (res.ok) {
-        const json = await res.json();
-        setProgress(prev => ({
-          ...prev,
-          lastSyncedAt: json.syncedAt || new Date().toISOString(),
-        }));
+        setSyncStatus('success');
+      } else {
+        setSyncStatus('error');
       }
-    } catch (err) {
-      console.warn('Background sync failed (will retry or work offline):', err);
-      setLastSyncError('Offline: Progreso guardado localmente');
+    } catch (e) {
+      console.warn('Sync API error:', e);
+      setSyncStatus('error');
     } finally {
       setIsSyncing(false);
     }
   }, []);
 
-  // Update step
-  const setStep = useCallback((step: AppScreen) => {
-    setProgress(prev => {
-      const updated = { ...prev, currentStep: step };
-      syncWithServer(updated);
-      return updated;
-    });
-  }, [syncWithServer]);
-
-  // Save Quiz Answers & calculate diagnosis
-  const saveQuizAnswers = useCallback((answers: QuizAnswers) => {
-    const diagnosis = calculateDiagnosis(answers);
-    setProgress(prev => {
+  // Save Initial Quiz Answers & compute ScanResult
+  const saveScanQuiz = useCallback((answers: { [questionId: number]: number }) => {
+    const result = calculateScanResult(answers);
+    setProgress((prev) => {
       const updated: ProgramProgress = {
         ...prev,
-        quizAnswers: answers,
-        diagnosis,
-        currentStep: 'SCAN_RESULTS',
+        scanResult: result,
+      };
+      return updated;
+    });
+    setPhase('SCAN_RESULTS');
+  }, []);
+
+  // Save Lead
+  const saveLead = useCallback((lead: LeadInfo) => {
+    setProgress((prev) => {
+      const updated: ProgramProgress = {
+        ...prev,
+        leadInfo: lead,
+        leadCaptured: true,
+        activationDate: prev.activationDate || new Date().toISOString(),
       };
       syncWithServer(updated);
       return updated;
     });
+    setPhase('DASHBOARD');
   }, [syncWithServer]);
 
-  // Save Lead information
-  const saveLead = useCallback((lead: UserLead) => {
-    setProgress(prev => {
-      const updated: ProgramProgress = {
-        ...prev,
-        lead,
-        currentStep: 'DASHBOARD',
-      };
-      syncWithServer(updated);
-      return updated;
-    });
-  }, [syncWithServer]);
-
-  /**
-   * Evaluates if a given day is unlocked according to the strict 24-hour circadian lock rule.
-   * Day 1 is always unlocked.
-   * Day N requires Day (N-1) to be completed AND >= 24 hours elapsed since completion timestamp.
-   */
-  const getDayStatus = useCallback((dayNumber: number): {
-    isCompleted: boolean;
-    isUnlocked: boolean;
-    isLockedByTime: boolean;
-    remainingSeconds: number;
-    unlockDate?: Date;
-  } => {
+  // Check status of any day (1-7) with 24-hour circadian lock
+  const getDayStatus = useCallback((dayNumber: number) => {
     const isCompleted = progress.completedDays.includes(dayNumber);
-    
-    // Day 1 is always unlocked
+
+    // Day 1 is unlocked by default if lead is captured
     if (dayNumber === 1) {
       return {
         isCompleted,
@@ -146,6 +139,7 @@ export function useAuthSynchronizer() {
     // Previous day must be completed
     const prevDay = dayNumber - 1;
     const isPrevCompleted = progress.completedDays.includes(prevDay);
+
     if (!isPrevCompleted) {
       return {
         isCompleted: false,
@@ -155,10 +149,9 @@ export function useAuthSynchronizer() {
       };
     }
 
-    // Check 24-hour lock timestamp from previous day completion
-    const prevCompletionTimestamp = progress.dayCompletionTimestamps[prevDay];
-    if (!prevCompletionTimestamp) {
-      // If completed but no timestamp, assume unlocked
+    // Check 24h timer from previous day completion
+    const prevCompletedTimestamp = progress.dayCompletionTimestamps[prevDay];
+    if (!prevCompletedTimestamp) {
       return {
         isCompleted,
         isUnlocked: true,
@@ -167,17 +160,17 @@ export function useAuthSynchronizer() {
       };
     }
 
-    const completionTime = new Date(prevCompletionTimestamp).getTime();
-    const unlockTime = completionTime + CIRCADIAN_LOCK_HOURS * 60 * 60 * 1000;
+    const prevTime = new Date(prevCompletedTimestamp).getTime();
+    const unlockTime = prevTime + LOCK_DURATION_MS;
     const now = Date.now();
-    const remainingMs = unlockTime - now;
+    const diffMs = unlockTime - now;
 
-    if (remainingMs > 0) {
+    if (diffMs > 0) {
       return {
         isCompleted,
         isUnlocked: false,
         isLockedByTime: true,
-        remainingSeconds: Math.ceil(remainingMs / 1000),
+        remainingSeconds: Math.ceil(diffMs / 1000),
         unlockDate: new Date(unlockTime),
       };
     }
@@ -187,21 +180,32 @@ export function useAuthSynchronizer() {
       isUnlocked: true,
       isLockedByTime: false,
       remainingSeconds: 0,
-      unlockDate: new Date(unlockTime),
     };
   }, [progress.completedDays, progress.dayCompletionTimestamps]);
 
-  // Complete a Day and trigger AI evaluation
+  // Complete a Day + AI evaluation
   const completeDay = useCallback(async (
     dayNumber: number,
     reflection: string,
-    sleepQualityRating: number,
-    energyMorningRating: number
-  ) => {
-    const nowIso = new Date().toISOString();
-    
-    // Request AI feedback from server
-    let aiFeedback: DayEvaluation['aiFeedback'] = undefined;
+    sleepQuality: number,
+    energyMorning: number,
+    dailyAnswers?: { questionId: number; selectedOptionIndex: number; score: number }[]
+  ): Promise<DayEvaluation | null> => {
+    const timestamp = new Date().toISOString();
+
+    let aiEvaluation: DayEvaluation = {
+      summary: `Día ${dayNumber} completado con éxito. Asimilación circadiana iniciada.`,
+      biologicalInsight: 'Tu sistema parasimpático y nervio vago han recibido las señales de relajación necesarias para inducir ondas lentas Delta.',
+      recommendedFrequency: dayNumber === 6 ? 'Delta 0.5-4Hz' : dayNumber === 1 ? 'Theta 4-8Hz' : 'Ruido Rosa',
+      somaticAction: 'Mantén el santuario oscuro y permite 24 horas de reposo neural.',
+      closingAffirmation: 'Tu descanso es tu santuario sagrado; cada noche te reconstruyes con amor.',
+      userReflection: reflection,
+      sleepQualityRating: sleepQuality,
+      energyMorningRating: energyMorning,
+      evaluatedAt: timestamp,
+    };
+
+    // Call server AI endpoint for Clara Luz evaluation
     try {
       const res = await fetch('/api/ai/evaluate-day', {
         method: 'POST',
@@ -209,97 +213,90 @@ export function useAuthSynchronizer() {
         body: JSON.stringify({
           dayNumber,
           reflection,
-          sleepQualityRating,
-          energyMorningRating,
-          userName: progress.lead?.name || 'Guerrera del Descanso',
-          primaryStruggle: progress.lead?.primaryStruggle || progress.diagnosis?.keyVulnerability,
+          sleepQualityRating: sleepQuality,
+          energyMorningRating: energyMorning,
+          userName: progress.leadInfo.nombre || 'Alumna',
+          primaryStruggle: progress.scanResult?.dominantArchetype || 'Insomnio',
         }),
       });
+
       if (res.ok) {
         const data = await res.json();
-        aiFeedback = data.feedback;
+        if (data.feedback) {
+          aiEvaluation = {
+            ...aiEvaluation,
+            summary: data.feedback.somaticObservation || aiEvaluation.summary,
+            biologicalInsight: data.feedback.psychologicalInsight || aiEvaluation.biologicalInsight,
+            somaticAction: data.feedback.nextStepRecommendation || aiEvaluation.somaticAction,
+            closingAffirmation: data.feedback.closingAffirmation || aiEvaluation.closingAffirmation,
+          };
+        }
       }
     } catch (e) {
-      console.warn('AI evaluation endpoint error, using fallback mentor feedback:', e);
-      aiFeedback = {
-        mentorName: 'Clara Luz',
-        somaticObservation: 'Tu cuerpo está registrando una disminución en la tensión basal simpática. Las prácticas respiratorias están abriendo espacio visceral.',
-        psychologicalInsight: 'Al escribir tu reflexión has desactivado parte de la memoria operativa de alerta. Permitirte no tener todo resuelto es tu primer gran acto de autocuidado.',
-        nextStepRecommendation: 'Respeta el intervalo de asimilación circadiana de 24 horas. Esta noche hidrátate con infusión tibia y activa las frecuencias binaurales.',
-        closingAffirmation: 'Tu descanso no es negociable; es tu santuario sagrado.',
-      };
+      console.warn('AI evaluation error, using fallback:', e);
     }
 
-    const evaluation: DayEvaluation = {
-      dayNumber,
-      timestamp: nowIso,
-      userReflection: reflection,
-      sleepQualityRating,
-      energyMorningRating,
-      aiFeedback,
-    };
+    setProgress((prev) => {
+      const newCompleted = prev.completedDays.includes(dayNumber)
+        ? prev.completedDays
+        : [...prev.completedDays, dayNumber].sort((a, b) => a - b);
 
-    setProgress(prev => {
-      const updatedCompleted = Array.from(new Set([...prev.completedDays, dayNumber]));
-      const updatedTimestamps = {
-        ...prev.dayCompletionTimestamps,
-        [dayNumber]: nowIso,
-      };
-      const updatedEvaluations = {
-        ...prev.dayEvaluations,
-        [dayNumber]: evaluation,
-      };
-      const nextActiveDay = Math.min(7, dayNumber + 1);
+      const nextDay = Math.min(7, dayNumber + 1);
+
+      // Unlock badges
+      const newBadges = [...prev.unlockedBadges];
+      if (newCompleted.length >= 3 && !newBadges.includes('coherencia_vagal')) {
+        newBadges.push('coherencia_vagal');
+      }
+      if (newCompleted.length >= 7 && !newBadges.includes('maestra_del_descanso')) {
+        newBadges.push('maestra_del_descanso');
+      }
 
       const updated: ProgramProgress = {
         ...prev,
-        completedDays: updatedCompleted,
-        dayCompletionTimestamps: updatedTimestamps,
-        dayEvaluations: updatedEvaluations,
-        activeDay: nextActiveDay,
+        currentDay: nextDay,
+        completedDays: newCompleted,
+        dayCompletionTimestamps: {
+          ...prev.dayCompletionTimestamps,
+          [dayNumber]: timestamp,
+        },
+        dayEvaluations: {
+          ...prev.dayEvaluations,
+          [dayNumber]: aiEvaluation,
+        },
+        responses: dailyAnswers ? {
+          ...prev.responses,
+          [dayNumber]: dailyAnswers,
+        } : prev.responses,
+        activeGardenLevel: Math.min(7, newCompleted.length + 1),
+        unlockedBadges: newBadges,
       };
 
       syncWithServer(updated);
       return updated;
     });
 
-    return aiFeedback;
-  }, [progress.lead, progress.diagnosis, syncWithServer]);
+    return aiEvaluation;
+  }, [progress.leadInfo.nombre, progress.scanResult?.dominantArchetype, syncWithServer]);
 
-  // Log Sleep entry
-  const addSleepLog = useCallback((log: Omit<SleepLogEntry, 'id'>) => {
-    const newEntry: SleepLogEntry = {
-      ...log,
-      id: 'log_' + Date.now(),
-    };
-    setProgress(prev => {
-      const updated = {
-        ...prev,
-        sleepLogs: [newEntry, ...prev.sleepLogs],
-      };
-      syncWithServer(updated);
-      return updated;
-    });
-  }, [syncWithServer]);
-
-  // Reset progress (for test or clean start)
+  // Reset progress (for test/debug or user request)
   const resetProgress = useCallback(() => {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch { /* ignore */ }
-    setProgress(DEFAULT_PROGRESS);
+    localStorage.removeItem(STORAGE_KEY);
+    setProgress(INITIAL_PROGRESS);
+    setPhase('LANDING');
   }, []);
 
   return {
+    phase,
+    setPhase,
     progress,
-    setStep,
-    saveQuizAnswers,
+    saveScanQuiz,
     saveLead,
     getDayStatus,
     completeDay,
-    addSleepLog,
     resetProgress,
     isSyncing,
-    lastSyncError,
+    syncStatus,
+    syncWithServer,
   };
 }

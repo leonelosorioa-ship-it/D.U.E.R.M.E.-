@@ -1,38 +1,37 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, Sparkles, User, Loader2, HeartHandshake, Moon, HelpCircle } from 'lucide-react';
-import { UserLead } from '../types';
+import { Bot, Send, Sparkles, User, Loader2, Moon, Brain, HeartHandshake, AlertCircle } from 'lucide-react';
+import { audioCues } from '../utils/audioCues';
 
 interface Message {
   id: string;
-  sender: 'clara' | 'user';
+  sender: 'user' | 'clara';
   text: string;
   timestamp: string;
 }
 
 interface ClaraLuzCoachProps {
-  lead?: UserLead;
-  activeDay: number;
+  userName?: string;
+  dominantArchetype?: string;
+  currentDay?: number;
 }
 
-export function ClaraLuzCoach({ lead, activeDay }: ClaraLuzCoachProps) {
+export function ClaraLuzCoach({
+  userName = 'Alumna',
+  dominantArchetype = 'Mente Hiperexcitada por Cortisol',
+  currentDay = 1,
+}: ClaraLuzCoachProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
-      id: 'init_1',
+      id: 'welcome_1',
       sender: 'clara',
-      text: `Hola ${lead?.name || 'amiga'}, soy Clara Luz, tu mentora de descanso en D.U.E.R.M.E.™ Mujer. Estoy aquí para acompañarte a despresurizar tu cuerpo, regular tu sistema nervioso y transformar tu noche en un santuario sagrado de recuperación. ¿Qué sientes en tu cuerpo o mente en este momento?`,
+      text: `Buenas noches, ${userName}. Soy Clara Luz, tu mentora en D.U.E.R.M.E.™ Mujer. Estoy aquí para acompañarte, disolver la rumiación mental y recordarte que tu cuerpo sabe exactamente cómo descansar cuando le brindas calma y seguridad. ¿Qué sensaciones o pensamientos están rondando tu mente en este momento?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
-  const [input, setInput] = useState('');
+
+  const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const quickPrompts = [
-    'Me desperté a las 3:00 AM y no puedo volver a dormir',
-    'Siento la mandíbula apretada y el cuello rígido',
-    'Tengo pensamientos en bucle sobre mis pendientes',
-    '¿Cuál es el mejor ritual de infusión para hoy?',
-  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -42,184 +41,206 @@ export function ClaraLuzCoach({ lead, activeDay }: ClaraLuzCoachProps) {
     scrollToBottom();
   }, [messages, isLoading]);
 
+  const quickPrompts = [
+    'Mi mente no para de pensar en pendientes',
+    'Me desperté a las 3:00 AM y no puedo volver a dormir',
+    'Siento la mandíbula y el cuello muy rígidos',
+    'Tengo miedo de que mañana no rinda si no me duermo ya',
+    '¿Qué infusión o mineral me recomiendas tomar?',
+  ];
+
   const handleSendMessage = async (textToSend?: string) => {
-    const messageText = textToSend || input;
-    if (!messageText.trim() || isLoading) return;
+    const query = textToSend || inputText;
+    if (!query.trim() || isLoading) return;
 
     const userMsg: Message = {
-      id: 'usr_' + Date.now(),
+      id: `u_${Date.now()}`,
       sender: 'user',
-      text: messageText.trim(),
+      text: query.trim(),
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
+    setMessages((prev) => [...prev, userMsg]);
+    setInputText('');
     setIsLoading(true);
+    audioCues.playChime(440, 0.2);
 
     try {
+      const historyPayload = messages.slice(-8).map((m) => ({
+        role: m.sender === 'user' ? 'user' : 'model',
+        parts: [{ text: m.text }],
+      }));
+
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: userMsg.text,
-          userName: lead?.name || 'Mujer Guerrera',
-          activeDay,
-          primaryStruggle: lead?.primaryStruggle,
-          chatHistory: messages.map(m => ({
-            role: m.sender === 'user' ? 'user' : 'model',
-            text: m.text,
-          })),
+          message: query.trim(),
+          userName,
+          currentDay,
+          dominantArchetype,
+          history: historyPayload,
         }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        const claraReply: Message = {
-          id: 'clara_' + Date.now(),
+        const claraMsg: Message = {
+          id: `c_${Date.now()}`,
           sender: 'clara',
-          text: data.reply || 'Aquí estoy contigo. Respira hondo y recuerda que tu descanso es tu mayor medicina.',
+          text: data.reply || 'Aquí estoy contigo. Respira hondo y recuerda que el descanso es un acto de rendición pacífica.',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
-        setMessages(prev => [...prev, claraReply]);
+        setMessages((prev) => [...prev, claraMsg]);
+        audioCues.playChime(528, 0.3);
       } else {
-        throw new Error('Chat API error');
+        throw new Error('API response not ok');
       }
-    } catch (e) {
-      console.warn('AI chat error, fallback response:', e);
-      const fallbackReply: Message = {
-        id: 'clara_' + Date.now(),
+    } catch (err) {
+      console.warn('Chat error, using empathetic fallback:', err);
+      const fallbackMsg: Message = {
+        id: `c_${Date.now()}`,
         sender: 'clara',
-        text: 'Respira profundamente, exhala despacio durante 8 segundos. Suelta el peso del cuello y los hombros. Esta noche no tienes nada que solucionar; permite que tu cuerpo descanse suavemente.',
+        text: `Querida ${userName}, siente cómo tu cuerpo se sostiene en la cama. No tienes que forzar el sueño ahora mismo; solo concédete el regalo de descansar en reposo. Inhala suavemente en 4 segundos, retén 7 y exhala en 8. Estoy a tu lado velando por tu tranquilidad.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
-      setMessages(prev => [...prev, fallbackReply]);
+      setMessages((prev) => [...prev, fallbackMsg]);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-4">
+    <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-slate-900/90 border border-indigo-950 p-4 sm:p-5 rounded-3xl flex items-center justify-between gap-4 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-700 via-blue-600 to-cyan-400 p-0.5 shadow-lg shadow-indigo-950">
-            <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-cyan-300 font-bold text-sm">
+      <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 border border-indigo-900/60 rounded-3xl p-5 sm:p-6 shadow-xl flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-cyan-400 p-0.5 shadow-lg shadow-indigo-950">
+            <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-cyan-400 font-bold text-sm">
               CL
             </div>
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-slate-100 text-sm sm:text-base font-display">
-                Clara Luz • Mentora de Descanso
-              </h3>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <h2 className="text-lg font-bold text-slate-100 font-display">Clara Luz</h2>
+              <span className="px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-800/80 text-[10px] font-bold text-cyan-300">
+                IA Somática Activa
+              </span>
             </div>
-            <p className="text-xs text-slate-400">Guía Somática & Neurocognitiva Tu Poder Mental™</p>
+            <p className="text-xs text-slate-400">
+              Mentora y Fundadora de Tu Poder Mental™ Mujer
+            </p>
           </div>
         </div>
 
-        <span className="hidden sm:inline-block px-3 py-1 rounded-full bg-indigo-950 border border-indigo-800 text-[11px] font-semibold text-indigo-300">
-          Día {activeDay} de Asimilación
-        </span>
+        <div className="hidden sm:flex items-center gap-1 text-[11px] text-slate-400 bg-slate-950/60 px-3 py-1.5 rounded-xl border border-indigo-950">
+          <Moon className="w-3.5 h-3.5 text-cyan-400" />
+          <span>Arquetipo: {dominantArchetype.split(' ')[0]}</span>
+        </div>
       </div>
 
-      {/* Chat Container */}
-      <div className="bg-slate-900/70 border border-indigo-950 rounded-3xl p-4 sm:p-6 flex flex-col h-[500px] shadow-2xl backdrop-blur-md">
-        {/* Messages Scroll Area */}
-        <div className="flex-1 overflow-y-auto space-y-4 pr-2">
-          {messages.map((msg) => {
-            const isClara = msg.sender === 'clara';
-            return (
-              <div
-                key={msg.id}
-                className={`flex gap-3 ${isClara ? 'justify-start' : 'justify-end'}`}
-              >
-                {isClara && (
-                  <div className="w-8 h-8 rounded-full bg-cyan-950 border border-cyan-500/40 text-cyan-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-                    CL
-                  </div>
-                )}
-
-                <div
-                  className={`max-w-[85%] sm:max-w-[75%] p-4 rounded-2xl text-xs sm:text-sm leading-relaxed space-y-1 shadow-md ${
-                    isClara
-                      ? 'bg-slate-950/80 border border-indigo-900/60 text-slate-200'
-                      : 'bg-indigo-600 text-white rounded-br-none'
-                  }`}
-                >
-                  <p className="whitespace-pre-wrap">{msg.text}</p>
-                  <span
-                    className={`text-[10px] block text-right ${
-                      isClara ? 'text-slate-500' : 'text-indigo-200'
-                    }`}
-                  >
-                    {msg.timestamp}
-                  </span>
-                </div>
-
-                {!isClara && (
-                  <div className="w-8 h-8 rounded-full bg-indigo-950 border border-indigo-800 text-indigo-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-                    <User className="w-4 h-4" />
-                  </div>
-                )}
-              </div>
-            );
-          })}
-
-          {isLoading && (
-            <div className="flex gap-3 items-center text-xs text-slate-400 pl-2">
-              <div className="w-8 h-8 rounded-full bg-cyan-950 border border-cyan-500/40 text-cyan-300 text-xs font-bold flex items-center justify-center shrink-0">
-                <Loader2 className="w-4 h-4 animate-spin" />
-              </div>
-              <span className="italic">Clara Luz está sintonizando con tu descanso...</span>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Quick Prompts */}
-        <div className="pt-3 pb-2 flex gap-2 overflow-x-auto no-scrollbar">
+      {/* Quick Prompts Carousel */}
+      <div className="space-y-1.5">
+        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+          Consultas Frecuentes para esta Noche:
+        </span>
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
           {quickPrompts.map((prompt, i) => (
             <button
               key={i}
               onClick={() => handleSendMessage(prompt)}
               disabled={isLoading}
-              className="px-3 py-1.5 rounded-full bg-slate-950/80 hover:bg-slate-900 border border-indigo-900/60 text-[11px] text-slate-300 shrink-0 transition-colors"
+              className="px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-indigo-950 text-slate-300 hover:text-cyan-300 text-xs whitespace-nowrap transition-colors flex items-center gap-1.5 shrink-0"
             >
-              {prompt}
+              <Sparkles className="w-3 h-3 text-cyan-400" />
+              <span>{prompt}</span>
             </button>
           ))}
         </div>
-
-        {/* Input Bar */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSendMessage();
-          }}
-          className="pt-2 flex items-center gap-2"
-        >
-          <input
-            type="text"
-            placeholder="Pregúntale a Clara Luz sobre tu descanso, respiración o rumiación..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            disabled={isLoading}
-            className="flex-1 px-4 py-3 rounded-2xl bg-slate-950 border border-indigo-950 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 text-xs sm:text-sm text-slate-100 placeholder-slate-500 outline-none"
-          />
-
-          <button
-            type="submit"
-            disabled={!input.trim() || isLoading}
-            className="p-3 rounded-2xl bg-cyan-500 hover:bg-cyan-400 disabled:opacity-40 text-slate-950 transition-colors shrink-0 shadow-lg shadow-cyan-950"
-          >
-            <Send className="w-4 h-4" />
-          </button>
-        </form>
       </div>
+
+      {/* Messages Container */}
+      <div className="bg-slate-900/90 border border-indigo-950 rounded-3xl p-4 sm:p-6 shadow-2xl backdrop-blur-md h-[420px] overflow-y-auto space-y-4">
+        {messages.map((msg) => {
+          const isClara = msg.sender === 'clara';
+
+          return (
+            <div
+              key={msg.id}
+              className={`flex items-start gap-3 ${isClara ? 'justify-start' : 'justify-end'}`}
+            >
+              {isClara && (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-cyan-400 flex items-center justify-center text-[10px] font-bold text-slate-950 shrink-0 mt-0.5">
+                  CL
+                </div>
+              )}
+
+              <div
+                className={`max-w-[85%] sm:max-w-[75%] p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                  isClara
+                    ? 'bg-slate-950/80 border border-indigo-900/60 text-slate-200 shadow-md'
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium shadow-md shadow-indigo-950'
+                }`}
+              >
+                <p className="whitespace-pre-wrap">{msg.text}</p>
+                <span
+                  className={`block text-[10px] mt-1.5 text-right ${
+                    isClara ? 'text-slate-500' : 'text-indigo-200'
+                  }`}
+                >
+                  {msg.timestamp}
+                </span>
+              </div>
+
+              {!isClara && (
+                <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 shrink-0 mt-0.5">
+                  <User className="w-4 h-4" />
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {isLoading && (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-indigo-950 border border-indigo-700 flex items-center justify-center text-cyan-400 text-xs">
+              <Loader2 className="w-4 h-4 animate-spin" />
+            </div>
+            <div className="p-3.5 rounded-2xl bg-slate-950 border border-indigo-950 text-xs text-slate-400 italic">
+              Clara Luz está meditando tu respuesta...
+            </div>
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Chat Input Bar */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSendMessage();
+        }}
+        className="flex gap-2"
+      >
+        <input
+          type="text"
+          placeholder="Escribe lo que sientes en tu cuerpo o mente..."
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          disabled={isLoading}
+          className="flex-1 px-4 py-3.5 rounded-2xl bg-slate-900/90 border border-indigo-950 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 text-slate-100 text-xs sm:text-sm placeholder-slate-500 outline-none transition-all shadow-inner"
+        />
+
+        <button
+          type="submit"
+          disabled={!inputText.trim() || isLoading}
+          className="px-5 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 disabled:opacity-40 text-white font-bold text-sm shadow-xl shadow-indigo-950 flex items-center justify-center gap-1.5 transition-all"
+        >
+          <Send className="w-4 h-4" />
+          <span className="hidden sm:inline">Enviar</span>
+        </button>
+      </form>
     </div>
   );
 }

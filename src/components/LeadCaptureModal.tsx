@@ -1,22 +1,40 @@
 import { useState, FormEvent } from 'react';
-import { UserLead } from '../types';
-import { Sparkles, Moon, ArrowRight, ShieldCheck, HeartHandshake, User, Mail, Compass } from 'lucide-react';
+import { LeadInfo } from '../types';
+import { Sparkles, ArrowRight, ShieldCheck, User, Mail, Globe, Phone, Moon } from 'lucide-react';
+import { audioCues } from '../utils/audioCues';
 
-interface CaptureLeadViewProps {
-  onSaveLead: (lead: UserLead) => void;
-  defaultStruggle?: string;
+interface LeadCaptureModalProps {
+  onSaveLead: (lead: LeadInfo) => void;
+  defaultEmail?: string;
 }
 
-export function CaptureLeadView({ onSaveLead, defaultStruggle }: CaptureLeadViewProps) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [primaryStruggle, setPrimaryStruggle] = useState(defaultStruggle || 'Insomnio y rumiación al acostarme');
+export function LeadCaptureModal({ onSaveLead, defaultEmail }: LeadCaptureModalProps) {
+  const [nombre, setNombre] = useState('');
+  const [email, setEmail] = useState(defaultEmail || '');
+  const [pais, setPais] = useState('España');
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  const countries = [
+    'España',
+    'México',
+    'Colombia',
+    'Argentina',
+    'Chile',
+    'Perú',
+    'Estados Unidos',
+    'Ecuador',
+    'Uruguay',
+    'Costa Rica',
+    'Panamá',
+    'Guatemala',
+    'Otro País',
+  ];
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      setError('Por favor ingresa tu nombre para personalizar tu hoja de ruta.');
+    if (!nombre.trim()) {
+      setError('Por favor escribe tu nombre para que Clara Luz pueda personalizar tu guía.');
       return;
     }
     if (!email.trim() || !email.includes('@')) {
@@ -24,11 +42,13 @@ export function CaptureLeadView({ onSaveLead, defaultStruggle }: CaptureLeadView
       return;
     }
 
-    const lead: UserLead = {
-      name: name.trim(),
+    audioCues.playChime(528, 0.5);
+
+    const lead: LeadInfo = {
+      nombre: nombre.trim(),
       email: email.trim(),
-      primaryStruggle,
-      createdAt: new Date().toISOString(),
+      pais,
+      phone: phone.trim() || undefined,
     };
 
     onSaveLead(lead);
@@ -40,13 +60,13 @@ export function CaptureLeadView({ onSaveLead, defaultStruggle }: CaptureLeadView
       <div className="text-center space-y-2">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-950/80 border border-indigo-700/50 text-indigo-300 text-xs font-semibold">
           <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Personalización de Hoja de Ruta</span>
+          <span>Acceso al Ecosistema Tu Poder Mental™</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-100 font-display">
-          Desbloquea tu Programa D.U.E.R.M.E.™
+          Personaliza Tu Hoja de Ruta D.U.E.R.M.E.™
         </h1>
         <p className="text-xs sm:text-sm text-slate-300">
-          Tu mentora con IA, <strong>Clara Luz</strong>, calibrará tus reflexiones diarias y desbloqueará el protocolo de 7 días.
+          Tu mentora <strong>Clara Luz</strong> adaptará cada una de las 7 noches a tu fisiología y ritmo biológico.
         </p>
       </div>
 
@@ -63,9 +83,9 @@ export function CaptureLeadView({ onSaveLead, defaultStruggle }: CaptureLeadView
               type="text"
               required
               placeholder="Ej. Valeria, Sofía, Elena..."
-              value={name}
+              value={nombre}
               onChange={(e) => {
-                setName(e.target.value);
+                setNombre(e.target.value);
                 if (error) setError(null);
               }}
               className="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-indigo-950 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 text-slate-100 placeholder-slate-500 text-sm outline-none transition-all"
@@ -90,27 +110,44 @@ export function CaptureLeadView({ onSaveLead, defaultStruggle }: CaptureLeadView
               className="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-indigo-950 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 text-slate-100 placeholder-slate-500 text-sm outline-none transition-all"
             />
             <p className="text-[11px] text-slate-400">
-              Para sincronizar tus avances y enviarte los resúmenes de asimilación circadiana.
+              Para sincronizar tu progreso y enviarte el Informe Integral en PDF al terminar el Día 7.
             </p>
           </div>
 
-          {/* Primary Struggle */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-              <Compass className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Tu Mayor Desafío con el Sueño</span>
-            </label>
-            <select
-              value={primaryStruggle}
-              onChange={(e) => setPrimaryStruggle(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-indigo-950 focus:border-cyan-400 text-slate-100 text-sm outline-none"
-            >
-              <option value="Insomnio y rumiación al acostarme">Insomnio y rumiación al acostarme (Mente acelerada)</option>
-              <option value="Despertares nocturnos en la madrugada (2-4 AM)">Despertares nocturnos en la madrugada (2:00 - 4:00 AM)</option>
-              <option value="Tensión corporal y bruxismo">Tensión física, cuello rígido o bruxismo</option>
-              <option value="Uso excesivo de pantallas de noche">Uso excesivo de pantallas y desajuste circadiano</option>
-              <option value="Despertar con fatiga crónica y pesadez">Despertar con fatiga crónica y sensación de no descansar</option>
-            </select>
+          {/* Country Field */}
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                <span>País de Residencia</span>
+              </label>
+              <select
+                value={pais}
+                onChange={(e) => setPais(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-indigo-950 focus:border-cyan-400 text-slate-100 text-xs sm:text-sm outline-none"
+              >
+                {countries.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Optional Phone / WhatsApp */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5 text-cyan-400" />
+                <span>WhatsApp (Opcional)</span>
+              </label>
+              <input
+                type="tel"
+                placeholder="+34 600 000 000"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-slate-950/70 border border-indigo-950 focus:border-cyan-400 text-slate-100 placeholder-slate-500 text-xs sm:text-sm outline-none transition-all"
+              />
+            </div>
           </div>
 
           {error && (

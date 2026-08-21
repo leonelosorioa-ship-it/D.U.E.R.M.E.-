@@ -1,12 +1,12 @@
 {
-  "name": "D.U.E.R.M.E.™ - Descanso Mental y Recuperación",
-  "short_name": "DUERME™",
-  "description": "Sistema Inteligente para el Descanso Mental y la Recuperación del Sueño - Tu Poder Mental™",
+  "name": "D.U.E.R.M.E.™ Mujer - Descanso Mental y Recuperación",
+  "short_name": "D.U.E.R.M.E.™",
+  "description": "Sistema Inteligente para el Descanso Mental y la Recuperación del Sueño • Tu Poder Mental™ Mujer con Clara Luz",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#030712",
-  "theme_color": "#1e1b4b",
-  "orientation": "portrait",
+  "background_color": "#0d1b3e",
+  "theme_color": "#0d1b3e",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/icon.svg",
