@@ -47,7 +47,7 @@ app.post('/api/progress/sync', (req, res) => {
   }
 });
 
-// 3. AI Day Evaluation endpoint with Leonardo persona
+// 3. AI Day Evaluation endpoint with Leo persona
 app.post('/api/ai/evaluate-day', async (req, res) => {
   try {
     const { dayNumber, reflection, sleepQualityRating, energyMorningRating, userName, primaryStruggle } = req.body;
@@ -55,13 +55,14 @@ app.post('/api/ai/evaluate-day', async (req, res) => {
     const ai = getAIClient();
 
     const prompt = `
-Eres Leonardo, Director de Innovación y Bienestar Humano (CWO) en Tu Poder Mental™ Mujer y mentor del programa D.U.E.R.M.E.™ Mujer (Desarrollado por Leps Software Solutions™).
-Tu tono es cercano, empático, pedagógico, sereno, científico y orientador.
-Explicas la neurobiología del descanso de forma accesible y acogedora, validando los desafíos de la mujer contemporánea y modulando el sistema nervioso autónomo.
+Eres Leo, Mentor de Vínculos y Conexión Digital en Tu Poder Mental™ Mujer y guía del programa D.U.E.R.M.E.™ Mujer (Desarrollado por Leps Software Solutions™).
+Tu slogan y filosofía central es: "Acompañamiento estratégico y tecnológico para optimizar tus relaciones y tu proyecto de vida."
+Tu tono es cercano, empático, pedagógico, sereno, científico, estratégico y orientador.
+Explicas la neurobiología del descanso y la gestión de la energía de forma accesible y acogedora, validando los desafíos de la mujer contemporánea (sobrecarga digital, hiperalerta, exigencia vincular y rumiación nocturna) y modulando el sistema nervioso autónomo.
 
 Datos de la alumna:
 - Nombre: ${userName || 'Querida amiga'}
-- Desafío principal: ${primaryStruggle || 'Insomnio, rumiación nocturna y sobrecarga mental'}
+- Desafío principal: ${primaryStruggle || 'Insomnio, rumiación nocturna, sobrecarga digital y mental'}
 - Día evaluado: Día ${dayNumber} de 7
 - Calidad de sueño / calma percibida: ${sleepQualityRating}/5
 - Nivel de energía al despertar: ${energyMorningRating}/5
@@ -81,8 +82,8 @@ Genera una devolución estructurada somática, neurobiológica y psicológica qu
             mentorName: { type: Type.STRING },
             somaticObservation: { type: Type.STRING, description: 'Observación sobre el tono muscular, nervio vago, temperatura y respiración' },
             psychologicalInsight: { type: Type.STRING, description: 'Reencuadre de la rumiación cognitiva, autoexigencia y descanso compasivo' },
-            nextStepRecommendation: { type: Type.STRING, description: 'Consejo práctico para las 24 horas de asimilación circadiana' },
-            closingAffirmation: { type: Type.STRING, description: 'Frase corta de anclaje de paz, serenidad y descanso' },
+            nextStepRecommendation: { type: Type.STRING, description: 'Consejo práctico para las 24 horas de asimilación circadiana y desconexión' },
+            closingAffirmation: { type: Type.STRING, description: 'Frase corta de anclaje de paz, serenidad y enfoque' },
           },
           required: ['mentorName', 'somaticObservation', 'psychologicalInsight', 'nextStepRecommendation', 'closingAffirmation'],
         },
@@ -96,26 +97,27 @@ Genera una devolución estructurada somática, neurobiológica y psicológica qu
     // Graceful fallback if API key not present or error
     res.json({
       feedback: {
-        mentorName: 'Leonardo',
+        mentorName: 'Leo',
         somaticObservation: 'Tu cuerpo está registrando una disminución progresiva en la tensión basal simpática. La respiración y el anclaje están activando tu freno vagal natural.',
-        psychologicalInsight: 'Al plasmar tu reflexión, liberas a tu corteza prefrontal del peso de retener pendientes. Permitirte no tener todo resuelto es el primer paso hacia una biología en paz.',
-        nextStepRecommendation: 'Respeta el ciclo de 24 horas de asimilación circadiana. Esta noche atenúa las luces, toma una infusión tibia y sumérgete en las frecuencias binaurales Delta.',
-        closingAffirmation: 'Tu descanso no es un lujo; es el cimiento de tu vitalidad, tu paz y tu poder mental.',
+        psychologicalInsight: 'Al plasmar tu reflexión, liberas a tu corteza prefrontal de la sobrecarga de retener pendientes. Permitirte desconectar es la clave para cuidar tus vínculos y tu energía vital.',
+        nextStepRecommendation: 'Respeta el ciclo de 24 horas de asimilación circadiana. Esta noche atenúa las pantallas, toma una infusión tibia y sumérgete en las frecuencias binaurales Delta.',
+        closingAffirmation: 'Tu descanso es el cimiento estratégico para tu paz, tus relaciones y tu proyecto de vida.',
       },
     });
   }
 });
 
-// 4. AI Interactive Chat with Leonardo
+// 4. AI Interactive Chat with Leo
 app.post('/api/ai/chat', async (req, res) => {
   try {
     const { message, userName, activeDay, primaryStruggle, chatHistory } = req.body;
     const ai = getAIClient();
 
     const systemInstruction = `
-Eres Leonardo, Director de Innovación y Bienestar Humano (CWO) en Tu Poder Mental™ Mujer y guía del programa D.U.E.R.M.E.™ Mujer (Desarrollado tecnológicamente por Leps Software Solutions™).
-Tu tono es cercano, empático, pedagógico, sereno, científico y orientador.
-Acompañas a las alumnas a recuperar su sueño mediante cronobiología, modulación del nervio vago, higiene lumínica, nutrición nocturna, técnicas somáticas (4-7-8, técnica militar) y frecuencias binaurales Delta (1.5 Hz) y Theta (4.5 Hz).
+Eres Leo, Mentor de Vínculos y Conexión Digital en Tu Poder Mental™ Mujer y guía del programa D.U.E.R.M.E.™ Mujer (Desarrollado tecnológicamente por Leps Software Solutions™).
+Tu slogan y norte rector es: "Acompañamiento estratégico y tecnológico para optimizar tus relaciones y tu proyecto de vida."
+Tu tono es cercano, empático, pedagógico, sereno, estratégico, científico y orientador.
+Acompañas a las alumnas a recuperar su sueño y claridad mediante cronobiología, modulación del nervio vago, higiene lumínica y digital, nutrición nocturna, técnicas somáticas (4-7-8, técnica militar) y frecuencias binaurales Delta (1.5 Hz) y Theta (4.5 Hz).
 Hablas en español impecable, cálido y tranquilizador. Respuestas concisas (2 a 4 párrafos bien estructurados), con consejos prácticos y anclajes de calma inmediatos.
 Datos de la usuaria: Nombre: ${userName || 'Amiga'}, Día activo: ${activeDay || 1}, Desafío principal: ${primaryStruggle || 'Insomnio y sobrecarga'}.
 `;

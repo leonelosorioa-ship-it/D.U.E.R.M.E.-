@@ -171,7 +171,7 @@ export function ScanResults({
               <span>Protocolo Prioritario</span>
             </div>
             <p className="text-xs font-bold text-indigo-200 line-clamp-1">{result.actionPlanSummary}</p>
-            <p className="text-[11px] text-slate-400">Enfoque de 7 Días con Leonardo</p>
+            <p className="text-[11px] text-slate-400">Enfoque de 7 Días con Leo</p>
           </div>
         </div>
 

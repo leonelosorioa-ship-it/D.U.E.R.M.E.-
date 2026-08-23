@@ -45,7 +45,7 @@ export function LeonardoProfileModal({ onClose }: LeonardoProfileModalProps) {
           <div className="p-4.5 rounded-2xl bg-indigo-950/40 border border-indigo-800/40 space-y-2 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
             <span className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider block">
-              Filosofía del Mentor
+              Filosofía de Leo
             </span>
             <p className="italic text-slate-200 font-medium leading-relaxed">
               "{LEONARDO_PROFILE.philosophy}"
@@ -56,7 +56,7 @@ export function LeonardoProfileModal({ onClose }: LeonardoProfileModalProps) {
           <div className="space-y-3">
             <h3 className="text-sm font-bold text-slate-100 font-display flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-cyan-400" />
-              <span>Sobre Leonardo y el Método D.U.E.R.M.E.™</span>
+              <span>Sobre Leo y el Método D.U.E.R.M.E.™</span>
             </h3>
             <p className="text-slate-300 leading-relaxed">
               {LEONARDO_PROFILE.bio}
@@ -66,7 +66,7 @@ export function LeonardoProfileModal({ onClose }: LeonardoProfileModalProps) {
           {/* 4 Pillars */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-              Pilares de la Metodología D.U.E.R.M.E.™
+              Pilares del Método D.U.E.R.M.E.™
             </h4>
             <div className="grid sm:grid-cols-2 gap-3">
               {LEONARDO_PROFILE.pillars.map((pillar, idx) => (
@@ -86,11 +86,11 @@ export function LeonardoProfileModal({ onClose }: LeonardoProfileModalProps) {
             </div>
           </div>
 
-          {/* Letter from Leonardo */}
+          {/* Letter from Leo */}
           <div className="p-4 rounded-2xl bg-slate-950/70 border border-indigo-900/40 space-y-2.5">
             <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
               <BookOpen className="w-4 h-4" />
-              <span>Carta Personal de Leonardo para tu Transformación</span>
+              <span>Carta Personal de Leo para tu Transformación</span>
             </div>
             <div className="text-xs text-slate-300 whitespace-pre-line leading-relaxed font-sans opacity-95">
               {LEONARDO_PROFILE.letterToStudent}

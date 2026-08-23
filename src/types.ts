@@ -71,7 +71,7 @@ export interface ProgramProgress {
 
 export type AppPhase = 'LANDING' | 'SCAN_QUIZ' | 'SCAN_RESULTS' | 'CAPTURE_LEAD' | 'DASHBOARD';
 
-export type DashboardTab = 'roadmap' | 'sounds' | 'garden' | 'leonardo_ai' | 'calculator' | 'premium' | 'settings' | 'clara_ai';
+export type DashboardTab = 'roadmap' | 'sounds' | 'garden' | 'leo_ai' | 'leonardo_ai' | 'calculator' | 'premium' | 'settings' | 'clara_ai';
 
 export interface SoundPreset {
   id: string;

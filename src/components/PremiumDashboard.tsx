@@ -276,7 +276,7 @@ export function PremiumDashboard({ progress, onNavigateToRoadmap }: PremiumDashb
       doc.setFontSize(10);
       doc.setTextColor(100, 116, 139);
       doc.text(`Email: ${userEmail} | Fecha de Emisión: ${new Date().toLocaleDateString()}`, 20, 65);
-      doc.text(`Mentora: Clara Luz | Diagnóstico: ${archetype} (Nivel ${insomniaLevel})`, 20, 72);
+      doc.text(`Mentor: Leo (Mentor de Vínculos y Conexión Digital) | Diagnóstico: ${archetype}`, 20, 72);
 
       // Divider line
       doc.setDrawColor(203, 213, 225);
@@ -285,18 +285,18 @@ export function PremiumDashboard({ progress, onNavigateToRoadmap }: PremiumDashb
       // Section 1: Summary
       doc.setTextColor(15, 23, 42);
       doc.setFontSize(14);
-      doc.text('1. Síntesis de la Transformación Neurocircadiana', 20, 90);
+      doc.text('1. Síntesis de la Transformación y Acompañamiento Estratégico', 20, 90);
 
       doc.setFontSize(10);
       doc.setTextColor(71, 85, 105);
       const summaryText =
-        `Durante este programa de 7 noches, ${userName} ha implementado las herramientas somáticas de regulación vagal, higiene lumínica, cofactores minerales de magnesio y neuroacústica binaural. La corteza prefrontal ha reducido su hiperactivación nocturna, permitiendo una transición fluida hacia las ondas lentas Delta. Puntos de calma acumulados: ${totalSomaticPoints} pts.`;
+        `Durante este programa de 7 noches, ${userName} ha implementado las herramientas somáticas de regulación vagal, desconexión digital estratégica, cofactores minerales y neuroacústica binaural. La sobrecarga cognitiva ha disminuido significativamente, optimizando tus relaciones y tu proyecto de vida. Puntos de calma acumulados: ${totalSomaticPoints} pts.`;
       doc.text(doc.splitTextToSize(summaryText, 170), 20, 98);
 
       // Section 2: 7 Days Protocol Summary
       doc.setTextColor(15, 23, 42);
       doc.setFontSize(14);
-      doc.text('2. Registro de Evaluaciones Diarias de Clara Luz', 20, 125);
+      doc.text('2. Registro de Evaluaciones Diarias de Leo', 20, 125);
 
       let yPos = 135;
       for (let i = 1; i <= 7; i++) {
@@ -315,7 +315,7 @@ export function PremiumDashboard({ progress, onNavigateToRoadmap }: PremiumDashb
       doc.setFontSize(9.5);
       doc.setTextColor(51, 65, 85);
       doc.text('• Bloque 1 (60 min antes): Vaciado mental en papel + infusión tibia con magnesio bisglicinato.', 25, 215);
-      doc.text('• Bloque 2 (30 min antes): Luces cálidas bajas, dormitorio a 18°C y desconexión total de pantallas.', 25, 223);
+      doc.text('• Bloque 2 (30 min antes): Luces cálidas bajas, dormitorio a 18°C y desconexión digital de pantallas.', 25, 223);
       doc.text('• Bloque 3 (En cama): 4 ciclos de respiración 4-7-8 + Terapia Acústica Delta 1.5 Hz + Anclaje somático.', 25, 231);
 
       // Footer
@@ -323,8 +323,8 @@ export function PremiumDashboard({ progress, onNavigateToRoadmap }: PremiumDashb
       doc.rect(0, 265, 210, 32, 'F');
       doc.setFontSize(9);
       doc.setTextColor(100, 116, 139);
-      doc.text('Tu Poder Mental™ Mujer • Mentora Clara Luz • Leps Software Solutions™', 20, 278);
-      doc.text('Recupera el sueño para recuperar tu energía y tu paz.', 20, 285);
+      doc.text('Tu Poder Mental™ Mujer • Mentor: Leo • Leps Software Solutions™', 20, 278);
+      doc.text('Acompañamiento estratégico y tecnológico para optimizar tus relaciones y tu proyecto de vida.', 20, 285);
 
       doc.save(`DUERME_Mujer_Informe_${userName.replace(/\s+/g, '_')}.pdf`);
     } catch (e) {

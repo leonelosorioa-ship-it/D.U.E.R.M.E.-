@@ -76,7 +76,7 @@ export function Dashboard({
         />
       )}
 
-      {(activeTab === 'leonardo_ai' || (activeTab as any) === 'clara_ai') && (
+      {(activeTab === 'leo_ai' || activeTab === 'leonardo_ai' || (activeTab as any) === 'clara_ai') && (
         <LeonardoCoach
           userName={progress.leadInfo.nombre}
           dominantArchetype={progress.scanResult?.archetypeTitle}

@@ -536,7 +536,7 @@ export function SevenDaysRoadmap({
               ) : (
                 /* Tab 2: Test & AI Feedback */
                 <div className="space-y-6">
-                  {/* Render Existing Leonardo AI Feedback */}
+                  {/* Render Existing Leo AI Feedback */}
                   {currentFeedback && (
                     <div className="bg-gradient-to-br from-indigo-950/90 via-slate-900 to-slate-950 border border-cyan-500/40 rounded-3xl p-5 sm:p-6 space-y-4 shadow-xl">
                       <div className="flex items-center justify-between">
@@ -546,9 +546,9 @@ export function SevenDaysRoadmap({
                           </div>
                           <div>
                             <h4 className="text-sm font-bold text-slate-100 flex items-center gap-1.5">
-                              <span>Devolución de Leonardo</span>
+                              <span>Devolución de Leo</span>
                               <span className="text-[10px] font-normal text-cyan-400 px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-800/60">
-                                Director CWO D.U.E.R.M.E.™
+                                Mentor de Vínculos y Conexión Digital
                               </span>
                             </h4>
                             <p className="text-[11px] text-slate-400">
@@ -722,7 +722,7 @@ export function SevenDaysRoadmap({
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Leonardo está analizando tu día...</span>
+                          <span>Leo está analizando tu día...</span>
                         </>
                       ) : (
                         <>

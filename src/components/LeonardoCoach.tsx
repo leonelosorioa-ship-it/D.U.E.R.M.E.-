@@ -27,7 +27,7 @@ export function LeonardoCoach({
     {
       id: 'welcome_1',
       sender: 'leonardo',
-      text: `Buenas noches, ${userName}. Soy Leonardo, Director de Bienestar e Innovación Humana en Tu Poder Mental™ Mujer. Estoy aquí para acompañarte paso a paso, regular juntos tu sistema nervioso y transformar tu descanso en una experiencia biológicamente restauradora. ¿Qué pensamientos, tensión física o dudas circulan por tu mente en este momento?`,
+      text: `Buenas noches, ${userName}. Soy Leo, Mentor de Vínculos y Conexión Digital en Tu Poder Mental™ Mujer. Mi propósito es brindarte acompañamiento estratégico y tecnológico para optimizar tus relaciones, tu proyecto de vida y tu descanso reparador. ¿Qué pensamientos, tensión o dudas circulan por tu mente en este momento?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -45,9 +45,9 @@ export function LeonardoCoach({
   }, [messages, isLoading]);
 
   const quickPrompts = [
-    'Mi mente no para de rumiar pendientes para mañana',
+    'Mi mente no para de rumiar pendientes y proyectos',
     'Me desperté a las 3:00 AM y no logro volver a conciliar el sueño',
-    'Siento opresión en el pecho, mandíbula rígida y taquicardia',
+    'Siento sobrecarga mental por pantallas, mensajes y autoexigencia',
     '¿Qué frecuencia binaural y técnica de respiración aplico hoy?',
     '¿Cómo tomo el magnesio y qué infusión me aconsejas?',
   ];
@@ -121,7 +121,7 @@ export function LeonardoCoach({
           <div
             onClick={onOpenProfile}
             className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-400 p-0.5 shadow-lg shadow-indigo-950 cursor-pointer hover:scale-105 transition-transform"
-            title="Ver perfil de Leonardo"
+            title="Ver perfil de Leo"
           >
             <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-cyan-400 font-extrabold text-base font-display">
               L
@@ -129,13 +129,13 @@ export function LeonardoCoach({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-slate-100 font-display">Leonardo</h2>
+              <h2 className="text-lg font-bold text-slate-100 font-display">Leo</h2>
               <span className="px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-800/80 text-[10px] font-bold text-cyan-300">
-                Director CWO • Guía IA
+                Mentor de Vínculos y Conexión Digital
               </span>
             </div>
-            <p className="text-xs text-slate-400">
-              {LEONARDO_PROFILE.institution} • {LEONARDO_PROFILE.techPartner}
+            <p className="text-xs text-slate-400 line-clamp-1">
+              {LEONARDO_PROFILE.brandMotto}
             </p>
           </div>
         </div>
@@ -149,7 +149,7 @@ export function LeonardoCoach({
       {/* Quick Prompts Carousel */}
       <div className="space-y-1.5">
         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-          Consultas Frecuentes con Leonardo:
+          Consultas Frecuentes con Leo:
         </span>
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
           {quickPrompts.map((prompt, i) => (
@@ -214,7 +214,7 @@ export function LeonardoCoach({
               <Loader2 className="w-4 h-4 animate-spin" />
             </div>
             <div className="p-3.5 rounded-2xl bg-slate-950 border border-indigo-950 text-xs text-slate-400 italic">
-              Leonardo está calibrando la respuesta somática...
+              Leo está preparando su orientación estratégica...
             </div>
           </div>
         )}
@@ -232,7 +232,7 @@ export function LeonardoCoach({
       >
         <input
           type="text"
-          placeholder="Escribe tus sensaciones o consulta a Leonardo..."
+          placeholder="Escribe tus sensaciones o consulta a Leo..."
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           disabled={isLoading}
