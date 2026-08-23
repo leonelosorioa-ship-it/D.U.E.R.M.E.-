@@ -19,7 +19,7 @@ export interface MentorProfile {
   badge: string;
 }
 
-export const LEONARDO_PROFILE: MentorProfile = {
+export const LEO_PROFILE: MentorProfile = {
   name: 'Leo',
   title: 'Mentor de Vínculos y Conexión Digital',
   role: 'Mentor de Vínculos y Conexión Digital',

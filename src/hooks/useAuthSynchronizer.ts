@@ -205,7 +205,7 @@ export function useAuthSynchronizer() {
       evaluatedAt: timestamp,
     };
 
-    // Call server AI endpoint for Clara Luz evaluation
+    // Call server AI endpoint for Leo evaluation
     try {
       const res = await fetch('/api/ai/evaluate-day', {
         method: 'POST',

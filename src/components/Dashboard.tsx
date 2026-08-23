@@ -3,13 +3,13 @@ import { DashboardTab, ProgramProgress, DayEvaluation, LeadInfo } from '../types
 import { SevenDaysRoadmap } from './7DaysRoadmap';
 import { SoundTherapy } from './SoundTherapy';
 import { PeaceGarden } from './PeaceGarden';
-import { LeonardoCoach } from './LeonardoCoach';
+import { LeoCoach } from './LeoCoach';
 import { SleepCalculator } from './SleepCalculator';
 import { PremiumDashboard } from './PremiumDashboard';
 import { ProfileSettings } from './ProfileSettings';
 import { BottomNav } from './BottomNav';
 import { AdminPanel } from './AdminPanel';
-import { LeonardoProfileModal } from './LeonardoProfileModal';
+import { LeoProfileModal } from './LeoProfileModal';
 
 interface DashboardProps {
   progress: ProgramProgress;
@@ -42,7 +42,7 @@ export function Dashboard({
 }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<DashboardTab>(initialTab);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [isLeonardoModalOpen, setIsLeonardoModalOpen] = useState(false);
+  const [isLeoModalOpen, setIsLeoModalOpen] = useState(false);
   const [selectedSoundPresetId, setSelectedSoundPresetId] = useState<string | undefined>(undefined);
 
   const completedDaysCount = progress.completedDays.length;
@@ -76,12 +76,12 @@ export function Dashboard({
         />
       )}
 
-      {(activeTab === 'leo_ai' || activeTab === 'leonardo_ai' || (activeTab as any) === 'clara_ai') && (
-        <LeonardoCoach
+      {activeTab === 'leo_ai' && (
+        <LeoCoach
           userName={progress.leadInfo.nombre}
           dominantArchetype={progress.scanResult?.archetypeTitle}
-          currentDay={progress.currentDay}
-          onOpenProfile={() => setIsLeonardoModalOpen(true)}
+          activeDay={progress.currentDay}
+          onOpenProfile={() => setIsLeoModalOpen(true)}
         />
       )}
 
@@ -135,9 +135,9 @@ export function Dashboard({
         onReset={onResetProgress}
       />
 
-      {/* Leonardo Profile Modal */}
-      {isLeonardoModalOpen && (
-        <LeonardoProfileModal onClose={() => setIsLeonardoModalOpen(false)} />
+      {/* Leo Profile Modal */}
+      {isLeoModalOpen && (
+        <LeoProfileModal onClose={() => setIsLeoModalOpen(false)} />
       )}
     </div>
   );

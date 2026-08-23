@@ -250,7 +250,7 @@ export function SleepCalculator() {
         <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/40 flex items-start gap-3 text-xs text-slate-300 leading-relaxed">
           <Brain className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
           <div>
-            <strong>Regla de Oro de Clara Luz:</strong> Dormir 7 horas y media (5 ciclos) te hará despertar mucho más renovada que dormir 8 horas exactas, porque a las 8 horas te encontrarías en pleno valle de sueño profundo. Respeta los múltiplos de 90 minutos.
+            <strong>Regla de Oro de Leo:</strong> Dormir 7 horas y media (5 ciclos) te hará despertar mucho más renovada que dormir 8 horas exactas, porque a las 8 horas te encontrarías en pleno valle de sueño profundo. Respeta los múltiplos de 90 minutos para optimizar tu energía, tus relaciones y tu proyecto de vida.
           </div>
         </div>
       </div>

@@ -593,7 +593,7 @@ export function PremiumDashboard({ progress, onNavigateToRoadmap }: PremiumDashb
               Insignias de Maestría Somática
             </h3>
             <p className="text-xs text-slate-400">
-              Desbloquea condecoraciones exclusivas conforme integras el protocolo de Clara Luz.
+              Desbloquea condecoraciones exclusivas conforme integras el protocolo de Leo.
             </p>
           </div>
 
@@ -656,7 +656,7 @@ export function PremiumDashboard({ progress, onNavigateToRoadmap }: PremiumDashb
               </h3>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Descarga tu expediente oficial con el diagnóstico de Clara Luz, desglose de los 7 días de asimilación y la guía permanente de los 3 bloques de sueño.
+              Descarga tu expediente oficial con el diagnóstico de Leo, desglose de los 7 días de asimilación y la guía permanente de los 3 bloques de sueño.
             </p>
           </div>
 

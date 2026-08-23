@@ -1,11 +1,11 @@
 import { X, Moon, Heart, Sparkles, ShieldCheck, Award, BookOpen, SunMoon, HeartPulse, Headphones, CheckCircle2 } from 'lucide-react';
-import { LEONARDO_PROFILE } from '../data/leonardoProfile';
+import { LEO_PROFILE } from '../data/leoProfile';
 
-interface LeonardoProfileModalProps {
+interface LeoProfileModalProps {
   onClose: () => void;
 }
 
-export function LeonardoProfileModal({ onClose }: LeonardoProfileModalProps) {
+export function LeoProfileModal({ onClose }: LeoProfileModalProps) {
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
       <div className="bg-slate-900 border border-indigo-900/80 rounded-3xl max-w-2xl w-full my-auto shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -19,13 +19,13 @@ export function LeonardoProfileModal({ onClose }: LeonardoProfileModalProps) {
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-xl font-extrabold text-slate-100 font-display">{LEONARDO_PROFILE.name}</h2>
+                <h2 className="text-xl font-extrabold text-slate-100 font-display">{LEO_PROFILE.name}</h2>
                 <span className="px-2 py-0.5 rounded-full bg-cyan-950/90 border border-cyan-700/60 text-[10px] font-bold text-cyan-300">
-                  {LEONARDO_PROFILE.badge}
+                  {LEO_PROFILE.badge}
                 </span>
               </div>
               <p className="text-xs text-indigo-300 font-medium mt-0.5">
-                {LEONARDO_PROFILE.institution} • {LEONARDO_PROFILE.brandMotto}
+                {LEO_PROFILE.institution} • {LEO_PROFILE.brandMotto}
               </p>
             </div>
           </div>
@@ -48,7 +48,7 @@ export function LeonardoProfileModal({ onClose }: LeonardoProfileModalProps) {
               Filosofía de Leo
             </span>
             <p className="italic text-slate-200 font-medium leading-relaxed">
-              "{LEONARDO_PROFILE.philosophy}"
+              "{LEO_PROFILE.philosophy}"
             </p>
           </div>
 
@@ -59,7 +59,7 @@ export function LeonardoProfileModal({ onClose }: LeonardoProfileModalProps) {
               <span>Sobre Leo y el Método D.U.E.R.M.E.™</span>
             </h3>
             <p className="text-slate-300 leading-relaxed">
-              {LEONARDO_PROFILE.bio}
+              {LEO_PROFILE.bio}
             </p>
           </div>
 
@@ -69,7 +69,7 @@ export function LeonardoProfileModal({ onClose }: LeonardoProfileModalProps) {
               Pilares del Método D.U.E.R.M.E.™
             </h4>
             <div className="grid sm:grid-cols-2 gap-3">
-              {LEONARDO_PROFILE.pillars.map((pillar, idx) => (
+              {LEO_PROFILE.pillars.map((pillar, idx) => (
                 <div key={idx} className="p-3.5 rounded-2xl bg-slate-950/60 border border-indigo-950 space-y-1.5 hover:border-indigo-800 transition-colors">
                   <div className="flex items-center gap-2 text-xs font-bold text-cyan-300">
                     {idx === 0 && <SunMoon className="w-4 h-4 text-amber-400" />}
@@ -93,7 +93,7 @@ export function LeonardoProfileModal({ onClose }: LeonardoProfileModalProps) {
               <span>Carta Personal de Leo para tu Transformación</span>
             </div>
             <div className="text-xs text-slate-300 whitespace-pre-line leading-relaxed font-sans opacity-95">
-              {LEONARDO_PROFILE.letterToStudent}
+              {LEO_PROFILE.letterToStudent}
             </div>
           </div>
 
@@ -104,7 +104,7 @@ export function LeonardoProfileModal({ onClose }: LeonardoProfileModalProps) {
               <span>Acreditaciones & Desarrollo</span>
             </h4>
             <ul className="space-y-1.5 text-xs text-slate-400">
-              {LEONARDO_PROFILE.credentials.map((cred, idx) => (
+              {LEO_PROFILE.credentials.map((cred, idx) => (
                 <li key={idx} className="flex items-start gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
                   <span>{cred}</span>
@@ -117,9 +117,9 @@ export function LeonardoProfileModal({ onClose }: LeonardoProfileModalProps) {
         {/* Footer */}
         <div className="p-4 border-t border-indigo-950 bg-slate-950/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
           <div className="flex items-center gap-1.5">
-            <span className="font-semibold text-slate-300">{LEONARDO_PROFILE.institution}</span>
+            <span className="font-semibold text-slate-300">{LEO_PROFILE.institution}</span>
             <span>•</span>
-            <span className="text-[11px] text-slate-400">{LEONARDO_PROFILE.techPartner}</span>
+            <span className="text-[11px] text-slate-400">{LEO_PROFILE.techPartner}</span>
           </div>
           <button
             onClick={onClose}

@@ -6,7 +6,7 @@ import { ScanWizard } from './components/ScanWizard';
 import { ScanResults } from './components/ScanResults';
 import { LeadCaptureModal } from './components/LeadCaptureModal';
 import { Dashboard } from './components/Dashboard';
-import { LeonardoProfileModal } from './components/LeonardoProfileModal';
+import { LeoProfileModal } from './components/LeoProfileModal';
 import { TechnicalSupportDrawer } from './components/TechnicalSupportDrawer';
 import { SoundTherapy } from './components/SoundTherapy';
 import { X } from 'lucide-react';
@@ -133,7 +133,7 @@ function MainApp() {
 
       {/* Profile Modal */}
       {isProfileOpen && (
-        <LeonardoProfileModal onClose={() => setIsProfileOpen(false)} />
+        <LeoProfileModal onClose={() => setIsProfileOpen(false)} />
       )}
 
       {/* Technical Support Drawer */}

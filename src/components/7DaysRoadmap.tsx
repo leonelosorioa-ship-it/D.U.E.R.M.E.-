@@ -386,7 +386,7 @@ export function SevenDaysRoadmap({
                 <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                 <span>
                   {progress.completedDays.includes(selectedDay.dayNumber)
-                    ? 'Devolución Clara Luz'
+                    ? 'Devolución Leo'
                     : 'Test Diario & Evaluación'}
                 </span>
               </button>
