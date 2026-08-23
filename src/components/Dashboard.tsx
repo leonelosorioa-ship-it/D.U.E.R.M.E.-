@@ -3,12 +3,13 @@ import { DashboardTab, ProgramProgress, DayEvaluation, LeadInfo } from '../types
 import { SevenDaysRoadmap } from './7DaysRoadmap';
 import { SoundTherapy } from './SoundTherapy';
 import { PeaceGarden } from './PeaceGarden';
-import { ClaraLuzCoach } from './ClaraLuzCoach';
+import { LeonardoCoach } from './LeonardoCoach';
 import { SleepCalculator } from './SleepCalculator';
 import { PremiumDashboard } from './PremiumDashboard';
 import { ProfileSettings } from './ProfileSettings';
 import { BottomNav } from './BottomNav';
 import { AdminPanel } from './AdminPanel';
+import { LeonardoProfileModal } from './LeonardoProfileModal';
 
 interface DashboardProps {
   progress: ProgramProgress;
@@ -41,6 +42,7 @@ export function Dashboard({
 }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<DashboardTab>(initialTab);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isLeonardoModalOpen, setIsLeonardoModalOpen] = useState(false);
   const [selectedSoundPresetId, setSelectedSoundPresetId] = useState<string | undefined>(undefined);
 
   const completedDaysCount = progress.completedDays.length;
@@ -74,11 +76,12 @@ export function Dashboard({
         />
       )}
 
-      {activeTab === 'clara_ai' && (
-        <ClaraLuzCoach
+      {(activeTab === 'leonardo_ai' || (activeTab as any) === 'clara_ai') && (
+        <LeonardoCoach
           userName={progress.leadInfo.nombre}
           dominantArchetype={progress.scanResult?.archetypeTitle}
           currentDay={progress.currentDay}
+          onOpenProfile={() => setIsLeonardoModalOpen(true)}
         />
       )}
 
@@ -131,6 +134,11 @@ export function Dashboard({
         onCompleteDay={onCompleteDay}
         onReset={onResetProgress}
       />
+
+      {/* Leonardo Profile Modal */}
+      {isLeonardoModalOpen && (
+        <LeonardoProfileModal onClose={() => setIsLeonardoModalOpen(false)} />
+      )}
     </div>
   );
 }

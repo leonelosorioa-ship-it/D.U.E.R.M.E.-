@@ -32,8 +32,8 @@ export function BottomNav({
       icon: Flower2,
     },
     {
-      id: 'clara_ai' as DashboardTab,
-      label: 'Clara IA',
+      id: 'leonardo_ai' as DashboardTab,
+      label: 'Leonardo IA',
       icon: Bot,
       badge: 'IA',
     },

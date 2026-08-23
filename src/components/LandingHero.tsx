@@ -27,7 +27,7 @@ export function LandingHero({
       <div className="text-center space-y-5">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-950/90 border border-indigo-700/60 text-indigo-200 text-xs font-semibold shadow-lg shadow-indigo-950/50">
           <Moon className="w-3.5 h-3.5 text-cyan-400 fill-cyan-400/20" />
-          <span>Tu Poder Mental™ Mujer • Mentora Clara Luz</span>
+          <span>Tu Poder Mental™ Mujer • Guía: Leonardo (Director CWO)</span>
         </div>
 
         <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-100 font-display tracking-tight leading-tight">
@@ -38,7 +38,7 @@ export function LandingHero({
         </h1>
 
         <p className="text-sm sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-          Dormir bien no es un lujo. Es el pilar biológico fundamental de tu paz mental y vitalidad. D.U.E.R.M.E.™ es el sistema inteligente diseñado para mujeres de alta autoexigencia que desean desactivar la rumiación nocturna.
+          Dormir bien no es un lujo. Es el pilar biológico fundamental de tu paz mental y vitalidad. D.U.E.R.M.E.™ es el sistema inteligente diseñado para mujeres de alta autoexigencia que desean desactivar la rumiación nocturna y regenerar su tono vagal.
         </p>
 
         {/* CTAs */}
@@ -121,34 +121,34 @@ export function LandingHero({
         </div>
       </div>
 
-      {/* Mentor Clara Luz Spotlight */}
+      {/* Mentor Leonardo Spotlight */}
       <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-indigo-950/90 via-slate-900 to-indigo-950 border border-indigo-800/60 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-cyan-400 p-0.5 shadow-xl shrink-0">
-            <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-cyan-400 font-extrabold text-xl font-display">
-              CL
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-cyan-400 p-0.5 shadow-xl shrink-0">
+            <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-cyan-400 font-extrabold text-2xl font-display">
+              L
             </div>
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-bold text-slate-100 font-display">
-                Guiada por Clara Luz
+                Guiada por Leonardo
               </h3>
               <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-bold border border-cyan-800">
-                Tu Poder Mental™
+                Director CWO • Tu Poder Mental™
               </span>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed">
-              "No estás rota; tu cuerpo solo ha olvidado cómo soltar. Permíteme guiarte noche a noche para que despiertes renovada."
+              "Dormir no es una meta que se conquista con esfuerzo; es una rendición biológica que ocurre cuando tu sistema nervioso recupera la certidumbre de seguridad."
             </p>
           </div>
         </div>
 
         <button
           onClick={onOpenProfile}
-          className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-colors whitespace-nowrap shrink-0"
+          className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-colors whitespace-nowrap shrink-0 border border-indigo-900/60"
         >
-          Conocer la Filosofía
+          Conocer a Leonardo
         </button>
       </div>
     </div>

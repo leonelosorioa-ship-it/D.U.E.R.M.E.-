@@ -76,7 +76,7 @@ export function Header({
               </span>
             </div>
             <span className="text-[10px] text-slate-400 font-medium -mt-0.5">
-              Tu Poder Mental™ • Clara Luz
+              Tu Poder Mental™ • Leonardo
             </span>
           </div>
         </div>
@@ -99,16 +99,16 @@ export function Header({
             </span>
           </button>
 
-          {/* Clara Luz Profile Button */}
+          {/* Leonardo Profile Button */}
           <button
             onClick={onOpenProfile}
             className="p-2 rounded-xl bg-slate-900/80 border border-indigo-950 hover:border-indigo-800 text-slate-300 hover:text-cyan-300 transition-colors flex items-center gap-1.5 text-xs"
-            title="Conoce a Clara Luz"
+            title="Conoce a Leonardo (Director CWO)"
           >
-            <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center text-[10px] font-bold text-slate-950">
-              CL
+            <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center text-[10px] font-extrabold text-slate-950">
+              L
             </div>
-            <span className="hidden md:inline font-medium">Clara Luz</span>
+            <span className="hidden md:inline font-medium">Leonardo</span>
           </button>
 
           {/* Technical Support Drawer */}

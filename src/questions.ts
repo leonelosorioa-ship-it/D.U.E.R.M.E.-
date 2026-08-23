@@ -510,7 +510,7 @@ export const SEVEN_DAYS_ROADMAP: DayPlan[] = [
     hypnagogicAnchor: 'Soy dueña de mi descanso; mi mente y mi cuerpo viven en armonía.',
     tasks: [
       { id: 'd7_t1', title: 'Ejecutar el Ritual de los 3 Bloques', description: 'Aplica el protocolo completo de desconexión somática.', durationMinutes: 45, completed: false },
-      { id: 'd7_t2', title: 'Descargar el Informe Integral D.U.E.R.M.E.™ en PDF', description: 'Guarda tu diagnóstico, gráficos y recomendaciones de Clara Luz.', durationMinutes: 5, completed: false },
+      { id: 'd7_t2', title: 'Descargar el Informe Integral D.U.E.R.M.E.™ en PDF', description: 'Guarda tu diagnóstico, gráficos y recomendaciones de Leonardo.', durationMinutes: 5, completed: false },
       { id: 'd7_t3', title: 'Celebrar tu compromiso con tu salud mental', description: 'Reconoce el amor y respeto con el que has cuidado de ti.', durationMinutes: 5, completed: false },
     ],
     dailyQuestions: [

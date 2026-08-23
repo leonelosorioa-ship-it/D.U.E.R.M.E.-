@@ -47,7 +47,7 @@ app.post('/api/progress/sync', (req, res) => {
   }
 });
 
-// 3. AI Day Evaluation endpoint with Clara Luz persona
+// 3. AI Day Evaluation endpoint with Leonardo persona
 app.post('/api/ai/evaluate-day', async (req, res) => {
   try {
     const { dayNumber, reflection, sleepQualityRating, energyMorningRating, userName, primaryStruggle } = req.body;
@@ -55,18 +55,19 @@ app.post('/api/ai/evaluate-day', async (req, res) => {
     const ai = getAIClient();
 
     const prompt = `
-Eres Clara Luz, la mentora y guía somática del programa D.U.E.R.M.E.™ Mujer (Ecosistema Tu Poder Mental™).
-Tu voz es empática, científica, protectora, cálida y orientada al descanso profundo y la modulación del sistema nervioso.
+Eres Leonardo, Director de Innovación y Bienestar Humano (CWO) en Tu Poder Mental™ Mujer y mentor del programa D.U.E.R.M.E.™ Mujer (Desarrollado por Leps Software Solutions™).
+Tu tono es cercano, empático, pedagógico, sereno, científico y orientador.
+Explicas la neurobiología del descanso de forma accesible y acogedora, validando los desafíos de la mujer contemporánea y modulando el sistema nervioso autónomo.
 
 Datos de la alumna:
 - Nombre: ${userName || 'Querida amiga'}
-- Desafío principal: ${primaryStruggle || 'Insomnio y rumiación nocturna'}
+- Desafío principal: ${primaryStruggle || 'Insomnio, rumiación nocturna y sobrecarga mental'}
 - Día evaluado: Día ${dayNumber} de 7
 - Calidad de sueño / calma percibida: ${sleepQualityRating}/5
 - Nivel de energía al despertar: ${energyMorningRating}/5
 - Reflexión personal de la alumna: "${reflection}"
 
-Genera una devolución estructurada somática y psicológica que valide su esfuerzo, analice las respuestas de su cuerpo, desacelere cualquier culpa o autoexigencia, y brinde un consejo clave para las próximas 24 horas de asimilación circadiana.
+Genera una devolución estructurada somática, neurobiológica y psicológica que valide su esfuerzo, analice las respuestas de su cuerpo y tono vagal, desacelere cualquier culpa o autoexigencia cognitiva, y brinde una pauta de oro para las próximas 24 horas de asimilación circadiana.
 `;
 
     const response = await ai.models.generateContent({
@@ -78,10 +79,10 @@ Genera una devolución estructurada somática y psicológica que valide su esfue
           type: Type.OBJECT,
           properties: {
             mentorName: { type: Type.STRING },
-            somaticObservation: { type: Type.STRING, description: 'Observación sobre el tono muscular, nervio vago y respiración' },
-            psychologicalInsight: { type: Type.STRING, description: 'Reencuadre de la rumiación cognitiva y autoexigencia' },
+            somaticObservation: { type: Type.STRING, description: 'Observación sobre el tono muscular, nervio vago, temperatura y respiración' },
+            psychologicalInsight: { type: Type.STRING, description: 'Reencuadre de la rumiación cognitiva, autoexigencia y descanso compasivo' },
             nextStepRecommendation: { type: Type.STRING, description: 'Consejo práctico para las 24 horas de asimilación circadiana' },
-            closingAffirmation: { type: Type.STRING, description: 'Frase corta de anclaje de paz y descanso' },
+            closingAffirmation: { type: Type.STRING, description: 'Frase corta de anclaje de paz, serenidad y descanso' },
           },
           required: ['mentorName', 'somaticObservation', 'psychologicalInsight', 'nextStepRecommendation', 'closingAffirmation'],
         },
@@ -95,27 +96,28 @@ Genera una devolución estructurada somática y psicológica que valide su esfue
     // Graceful fallback if API key not present or error
     res.json({
       feedback: {
-        mentorName: 'Clara Luz',
-        somaticObservation: 'Tu cuerpo está registrando una disminución en la tensión basal simpática. Las prácticas respiratorias están abriendo espacio visceral.',
-        psychologicalInsight: 'Al escribir tu reflexión has desactivado parte de la memoria operativa de alerta. Permitirte no tener todo resuelto es tu primer gran acto de autocuidado.',
-        nextStepRecommendation: 'Respeta el intervalo de asimilación circadiana de 24 horas. Esta noche hidrátate con infusión tibia y activa las frecuencias binaurales.',
-        closingAffirmation: 'Tu descanso no es negociable; es tu santuario sagrado.',
+        mentorName: 'Leonardo',
+        somaticObservation: 'Tu cuerpo está registrando una disminución progresiva en la tensión basal simpática. La respiración y el anclaje están activando tu freno vagal natural.',
+        psychologicalInsight: 'Al plasmar tu reflexión, liberas a tu corteza prefrontal del peso de retener pendientes. Permitirte no tener todo resuelto es el primer paso hacia una biología en paz.',
+        nextStepRecommendation: 'Respeta el ciclo de 24 horas de asimilación circadiana. Esta noche atenúa las luces, toma una infusión tibia y sumérgete en las frecuencias binaurales Delta.',
+        closingAffirmation: 'Tu descanso no es un lujo; es el cimiento de tu vitalidad, tu paz y tu poder mental.',
       },
     });
   }
 });
 
-// 4. AI Interactive Chat with Clara Luz
+// 4. AI Interactive Chat with Leonardo
 app.post('/api/ai/chat', async (req, res) => {
   try {
     const { message, userName, activeDay, primaryStruggle, chatHistory } = req.body;
     const ai = getAIClient();
 
     const systemInstruction = `
-Eres Clara Luz, la mentora somática y experta en higiene del sueño del programa D.U.E.R.M.E.™ Mujer (Tu Poder Mental™).
-Tu objetivo es responder con amorosa presencia, precisión en neurociencia del descanso (ondas cerebrales Delta/Theta, estimulación del nervio vago, temperatura corporal, luz azul, vaciado mental y respiración 4-7-8), y contención emocional femenina.
-Hablas en español cálido, sereno y empático. Respuestas concisas (2 a 4 párrafos cortos) con consejos accionables e inmediatos.
-Datos de la usuaria: Nombre: ${userName || 'Amiga'}, Día activo: ${activeDay || 1}, Desafío principal: ${primaryStruggle || 'Insomnio'}.
+Eres Leonardo, Director de Innovación y Bienestar Humano (CWO) en Tu Poder Mental™ Mujer y guía del programa D.U.E.R.M.E.™ Mujer (Desarrollado tecnológicamente por Leps Software Solutions™).
+Tu tono es cercano, empático, pedagógico, sereno, científico y orientador.
+Acompañas a las alumnas a recuperar su sueño mediante cronobiología, modulación del nervio vago, higiene lumínica, nutrición nocturna, técnicas somáticas (4-7-8, técnica militar) y frecuencias binaurales Delta (1.5 Hz) y Theta (4.5 Hz).
+Hablas en español impecable, cálido y tranquilizador. Respuestas concisas (2 a 4 párrafos bien estructurados), con consejos prácticos y anclajes de calma inmediatos.
+Datos de la usuaria: Nombre: ${userName || 'Amiga'}, Día activo: ${activeDay || 1}, Desafío principal: ${primaryStruggle || 'Insomnio y sobrecarga'}.
 `;
 
     const chat = ai.chats.create({
@@ -134,7 +136,7 @@ Datos de la usuaria: Nombre: ${userName || 'Amiga'}, Día activo: ${activeDay ||
   } catch (err: any) {
     console.error('Error in /api/ai/chat:', err);
     res.json({
-      reply: 'Respira profundamente, exhala despacio durante 8 segundos. Suelta el peso del cuello y los hombros. Esta noche no tienes nada que solucionar; permite que tu cuerpo descanse suavemente en este instante.',
+      reply: 'Inhala suavemente en 4 segundos, retén el aire 7 segundos y exhala despacio durante 8 segundos. Suelta el peso del cuello y la mandíbula. En este instante tu único propósito es descansar y permitir que tu cuerpo se renueve en paz.',
     });
   }
 });

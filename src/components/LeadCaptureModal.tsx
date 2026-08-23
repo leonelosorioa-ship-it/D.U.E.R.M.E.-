@@ -34,7 +34,7 @@ export function LeadCaptureModal({ onSaveLead, defaultEmail }: LeadCaptureModalP
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!nombre.trim()) {
-      setError('Por favor escribe tu nombre para que Clara Luz pueda personalizar tu guía.');
+      setError('Por favor escribe tu nombre para que Leonardo pueda personalizar tu guía.');
       return;
     }
     if (!email.trim() || !email.includes('@')) {
@@ -66,7 +66,7 @@ export function LeadCaptureModal({ onSaveLead, defaultEmail }: LeadCaptureModalP
           Personaliza Tu Hoja de Ruta D.U.E.R.M.E.™
         </h1>
         <p className="text-xs sm:text-sm text-slate-300">
-          Tu mentora <strong>Clara Luz</strong> adaptará cada una de las 7 noches a tu fisiología y ritmo biológico.
+          Tu guía <strong>Leonardo</strong> (Director CWO) adaptará cada una de las 7 noches a tu fisiología y ritmo circadiano.
         </p>
       </div>
 

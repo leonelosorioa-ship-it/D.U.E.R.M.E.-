@@ -536,19 +536,19 @@ export function SevenDaysRoadmap({
               ) : (
                 /* Tab 2: Test & AI Feedback */
                 <div className="space-y-6">
-                  {/* Render Existing Clara Luz AI Feedback */}
+                  {/* Render Existing Leonardo AI Feedback */}
                   {currentFeedback && (
                     <div className="bg-gradient-to-br from-indigo-950/90 via-slate-900 to-slate-950 border border-cyan-500/40 rounded-3xl p-5 sm:p-6 space-y-4 shadow-xl">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 font-bold text-xs">
-                            CL
+                          <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 font-extrabold text-xs font-display">
+                            L
                           </div>
                           <div>
                             <h4 className="text-sm font-bold text-slate-100 flex items-center gap-1.5">
-                              <span>Devolución de Clara Luz</span>
+                              <span>Devolución de Leonardo</span>
                               <span className="text-[10px] font-normal text-cyan-400 px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-800/60">
-                                Mentora D.U.E.R.M.E.™
+                                Director CWO D.U.E.R.M.E.™
                               </span>
                             </h4>
                             <p className="text-[11px] text-slate-400">
@@ -722,7 +722,7 @@ export function SevenDaysRoadmap({
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Clara Luz está analizando tu día...</span>
+                          <span>Leonardo está analizando tu día...</span>
                         </>
                       ) : (
                         <>

@@ -176,7 +176,7 @@ export function TechnicalSupportDrawer({
 
         {/* Footer */}
         <div className="pt-6 text-center text-[10px] text-slate-500 space-y-1">
-          <p>© 2026 Tu Poder Mental™ Mujer • Clara Luz</p>
+          <p>© 2026 Tu Poder Mental™ Mujer • Leonardo (Director CWO)</p>
           <p>Potenciado por Leps Software Solutions™</p>
         </div>
       </div>
